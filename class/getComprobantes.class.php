@@ -23,14 +23,14 @@
  * 				Put some comments here
  */
 // Put here all includes required by your class file
-//require_once DOL_DOCUMENT_ROOT."/core/class/commonobject.class.php";
+require_once DOL_DOCUMENT_ROOT."/compta/facture/class/facture.class.php";
 //require_once DOL_DOCUMENT_ROOT."/societe/class/societe.class.php";
 //require_once DOL_DOCUMENT_ROOT."/product/class/product.class.php";
 
 /**
  * Put your class' description here
  */
-class SkeletonClass // extends CommonObject
+class getComprobantes // extends CommonObject
 {
 
     private $db; //!< To store db handler
@@ -54,6 +54,22 @@ class SkeletonClass // extends CommonObject
         return 1;
     }
 
+
+
+    public function prueba(){
+
+        $factura= new facture($this->db);
+        
+        var_dump($factura->fetch(14146));
+        var_dump($factura->paye);
+        var_dump($factura->fk_soc);
+        var_dump($factura->total_ttc);
+        var_dump($factura->socid);
+        var_dump($factura->ref);
+
+
+
+    }
     /**
      * Create object into database
      *

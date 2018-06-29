@@ -15,3 +15,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+require_once '../../main.inc.php';
+include_once ( '../class/getComprobantes.class.php');
+
+
+include_once(DOL_DOCUMENT_ROOT.'/core/class/hookmanager.class.php');
+$hookmanager=new HookManager($db);
+$hookmanager->initHooks(array('context'));
+
+var_dump($hookmanager->executeHooks());
+
+
+
+
+
+$test = new getComprobantes($db);
+
+$test->prueba();
