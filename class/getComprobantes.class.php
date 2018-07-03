@@ -24,6 +24,7 @@
  */
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT."/compta/facture/class/facture.class.php";
+require_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
 //require_once DOL_DOCUMENT_ROOT."/societe/class/societe.class.php";
 //require_once DOL_DOCUMENT_ROOT."/product/class/product.class.php";
 
@@ -35,12 +36,20 @@ class getComprobantes // extends CommonObject
 
     private $db; //!< To store db handler
     public $error; //!< To return error code (or message)
-    public $errors = array(); //!< To return several error codes (or messages)
-    //public $element='skeleton';	//!< Id that identify managed objects
-    //public $table_element='skeleton';	//!< Name of table without prefix where object is stored
-    public $id;
-    public $prop1;
-    public $prop2;
+    public $id;     // el id de la factura
+    public $comprobante;  // este es el numero de comprobante
+    public $referenciaFactura;  // el nombre de referencia de la factura ejemplo FA1807-13808
+    public $fecha;
+    public $idCliente;
+    public $fechaFactura;  // fecha de la factura realizada
+    public $total;  /// total de la factura  total_ttc
+    public $pagada;  // si esta pagada esta en 1  si no el valor paie  en 0
+    // public $total;  /// total de la factura  total_ttc
+    // public $total;  /// total de la factura  total_ttc
+
+
+
+
 
     /**
      * Constructor
@@ -50,9 +59,140 @@ class getComprobantes // extends CommonObject
     public function __construct($db)
     {
         $this->db = $db;
-
         return 1;
     }
+
+/**
+ * Este metodo me setea el numero de comprobante al cual estoy ingresando
+ */
+    public function setIdComprobante($idComp= null){
+
+        if(!is_null($idComp)){ // si envian algo hay que ver que sea un numero
+
+            $comprobante = intval($idComp);
+
+            if($comprobante > 0){  // si es un numero realiza el proceso de seteo
+
+                $this->comprobante = $comprobante; // seteo el numero de id comprobante
+
+                if($this->getIdFactura() == 1){
+
+                    $resultado=['response'=>true, 'msg'=>'Valor comprobante seteado correctamente'];
+
+                }else{
+
+                    $resultado=['response'=>false, 'msg'=>'El numero de comprobante no tiene una factura asociada'];
+
+                }    
+
+            }else{ // si no es un numero devuelve error
+
+                $resultado=['response'=>false, 'msg'=>'No es un numero Valido'];
+            }
+            
+        }else{ // si no envian nada que salga error
+
+            $resultado=['response'=>false, 'msg'=>'No se puede verificar el numero de identificacion de comprobante'];
+
+        }
+        
+        
+        return $resultado;
+
+    }
+
+
+    /**
+     * Este metodo  toma el id del comprobante  y lo asocia con el id de factura correspondiente
+     */
+    private function getIdFactura(){
+
+        $sql = "SELECT";
+        $sql.= " *";
+        $sql.= " FROM " . MAIN_DB_PREFIX . "paiement_facture as p";
+        $sql.= " WHERE p.fk_paiement = " . $this->comprobante;
+        
+        dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
+        $resql = $this->db->query($sql);
+   
+        if ($resql->num_rows > 0) {
+
+            if ($this->db->num_rows($resql)) {
+
+                $obj = $this->db->fetch_object($resql);
+
+                
+                $this->id = intval($obj->fk_facture);
+
+            }
+            $this->db->free($resql);
+
+            return 1;
+
+        } else {
+            $this->error = "Error " . $this->db->lasterror();
+            dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
+
+            return -1;
+        }
+
+
+    }
+
+    public function dataFactura(){
+
+
+        $factura = new facture($this->db); // instancio la clase factura
+
+        $factura->fetch($this->id); // cargo los datos  para el id de la factura asociada
+
+        $this->referenciaFactura= $factura->ref;
+        $this->fecha= $factura->date;
+        $this->idCliente= $factura->socid;
+        $this->fechaFactura= $factura->date_creation;
+        $this->total= $factura->total_ttc;
+
+
+
+        $this->referenciaFactura= $factura->paye;
+        $this->referenciaFactura= $factura->paye;
+        var_dump($factura->paye);
+        var_dump($factura->fk_soc);
+        var_dump($factura->total_ttc);
+        var_dump($factura->socid);
+        var_dump($factura->ref);
+
+var_dump($factura);
+
+    }
+
+
+
+    // public function getClient($this->idCliente){
+
+
+
+    // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -65,6 +205,9 @@ class getComprobantes // extends CommonObject
         var_dump($factura->fk_soc);
         var_dump($factura->total_ttc);
         var_dump($factura->socid);
+        var_dump($factura->ref);
+
+        var_dump($factura->ref);
         var_dump($factura->ref);
 
 

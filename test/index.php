@@ -19,16 +19,15 @@ require_once '../../main.inc.php';
 include_once ( '../class/getComprobantes.class.php');
 
 
-include_once(DOL_DOCUMENT_ROOT.'/core/class/hookmanager.class.php');
-$hookmanager=new HookManager($db);
-$hookmanager->initHooks(array('context'));
-
-var_dump($hookmanager->executeHooks());
-
-
-
 
 
 $test = new getComprobantes($db);
 
-$test->prueba();
+$valor = $test->setIdComprobante(14080);
+
+$data = $test->dataFactura();
+
+
+// var_dump($data);
+
+// var_dump($test->prueba());
