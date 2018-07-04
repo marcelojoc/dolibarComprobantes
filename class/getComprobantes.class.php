@@ -1,20 +1,5 @@
 <?php
-/* <one line to give the program's name and a brief idea of what it does.>
- * Copyright (C) <year>  <name of author>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+
 
 /**
  * 	\file		class/myclass.class.php
@@ -23,10 +8,19 @@
  * 				Put some comments here
  */
 // Put here all includes required by your class file
+
 require_once DOL_DOCUMENT_ROOT."/compta/facture/class/facture.class.php";
 require_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
-//require_once DOL_DOCUMENT_ROOT."/societe/class/societe.class.php";
+require_once DOL_DOCUMENT_ROOT."/societe/class/societe.class.php";
 //require_once DOL_DOCUMENT_ROOT."/product/class/product.class.php";
+
+/**
+ * Esta es una clase dependencia con el modulo de facturacion E de afip
+ * Si esta activo  lo va a requerir , de otro modo  puede funcionar sin problemas
+ */
+if (! empty($conf->facturaelectronica->enabled)) {
+	require_once DOL_DOCUMENT_ROOT . '/facturaElectronica/class/consultaFactura.class.php';  // incluir la clase de facturacion electronica
+}
 
 /**
  * Put your class' description here
@@ -39,18 +33,20 @@ class getComprobantes // extends CommonObject
     public $id;     // el id de la factura
     public $comprobante;  // este es el numero de comprobante
     public $referenciaFactura;  // el nombre de referencia de la factura ejemplo FA1807-13808
-    public $fecha;
-    public $idCliente;
+    public $fecha; // fecha actual
+    public $fechaVencimiento;  // venc  de la factura generada
     public $fechaFactura;  // fecha de la factura realizada
+    public $idCliente;  // id del cleinte 
+    public $nombreCliente;  // id del cleinte 
+    public $direccionCliente;  // direccion Cliente
     public $total;  /// total de la factura  total_ttc
+    public $monto;  // este valor es el monto pagado puede ser inferior al valor total  en ese caso quedaria adeudando
+    public $montoTotalPagado;  // este valor es la sumatoria de los pagos para una factura
     public $pagada;  // si esta pagada esta en 1  si no el valor paie  en 0
-    // public $total;  /// total de la factura  total_ttc
-    // public $total;  /// total de la factura  total_ttc
+    public $objAfip= false;  // objeto con todo los datos de la factura Electronica
 
 
-
-
-
+    
     /**
      * Constructor
      *
@@ -62,9 +58,9 @@ class getComprobantes // extends CommonObject
         return 1;
     }
 
-/**
- * Este metodo me setea el numero de comprobante al cual estoy ingresando
- */
+    /**
+     * Este metodo me setea el numero de comprobante al cual estoy ingresando
+     */
     public function setIdComprobante($idComp= null){
 
         if(!is_null($idComp)){ // si envian algo hay que ver que sea un numero
@@ -121,8 +117,7 @@ class getComprobantes // extends CommonObject
 
                 $obj = $this->db->fetch_object($resql);
 
-                
-                $this->id = intval($obj->fk_facture);
+                $this->id = intval($obj->fk_facture);  // coloca el id de la factura asociada
 
             }
             $this->db->free($resql);
@@ -139,44 +134,111 @@ class getComprobantes // extends CommonObject
 
     }
 
+    /**
+     * Este metodo asigna cada valor de la factura a los atributos de la clase
+     * 
+     */
     public function dataFactura(){
 
-
         $factura = new facture($this->db); // instancio la clase factura
-
         $factura->fetch($this->id); // cargo los datos  para el id de la factura asociada
 
         $this->referenciaFactura= $factura->ref;
         $this->fecha= $factura->date;
-        $this->idCliente= $factura->socid;
+        $this->fechaVencimiento= $factura->date_lim_reglement;
         $this->fechaFactura= $factura->date_creation;
-        $this->total= $factura->total_ttc;
+        $this->idCliente= $factura->socid;
+
+        $this->total= floatval($factura->total_ttc);
+        $this->pagada= $factura->paye;
+
+        $paiement = new Paiement($this->db); // instancio la clase paiement pata traer valores del pago realizado
+        $paiement->fetch($this->comprobante);   // listo los valores del pago
+
+        $this->monto= floatval($paiement->amount);
+
+        $this->getClient();  // asigno los datos del cliente
+        $this->montoTotalPagado = $this->getTotalAmount(); // sumatoria de los pagos realizados para esta factura
+        $this->getAfip();  // si esta activo el modulo trae el valor de datos electronicos, si no esta trae falso y si no esta activo el paramentro afip queda NULL
+    }
 
 
+    /**
+     * En este metodo se asignan los datos del cliente 
+     */
+    private function getClient(){
 
-        $this->referenciaFactura= $factura->paye;
-        $this->referenciaFactura= $factura->paye;
-        var_dump($factura->paye);
-        var_dump($factura->fk_soc);
-        var_dump($factura->total_ttc);
-        var_dump($factura->socid);
-        var_dump($factura->ref);
+        $societe = new Societe($this->db);
+        $societe->fetch($this->idCliente);
+        $this->nombreCliente = $societe->nom;  
+        $this->direccionCliente= $societe->address;  
 
-var_dump($factura);
 
     }
 
 
+    /**
+     * Este metodo va a agrupar los montos pagados para una misma factura
+     * y los trae como un solo monto...  
+     * esto se aplica para pagos parciales de facturas o usando diferentes medios de pago
+     */
+    private function getTotalAmount (){
 
-    // public function getClient($this->idCliente){
+        $total=0;
+
+        $sql = "SELECT";
+        $sql.= " *";
+        $sql.= " FROM " . MAIN_DB_PREFIX . "paiement_facture as p";
+        $sql.= " WHERE p.fk_facture = " . $this->id;
+        
+        dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
+        $resql = $this->db->query($sql);
+   
+        if ($resql->num_rows > 0) {
+
+            while ($obj = $this->db->fetch_object($resql)) {
+               
+                $total+= floatval($obj->amount);
+ 
+            }
+
+            $this->db->free($resql);
+
+            return $total;
+
+        } else {
+            $this->error = "Error " . $this->db->lasterror();
+            dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
+
+            return false;
+        }
+
+    }
 
 
-
-    // }
-
+    //region Afip
 
 
+    /**
+     * Este metodo asigna los valores de acuerdo a si esta validada en Afip o no
+     */
+    public function getAfip(){
 
+        var_dump($conf);
+        if (! empty($conf->facturaelectronica->enabled)) {
+
+            // instancio la clase de consulta con la instancia de base de datos y el id de factura
+            $afip = new consultaFactura($this->db, $this->id );
+            $this->objAfip = $afip->checkValidation();
+            return '$afip->checkValidation()';
+
+        }
+    }
+
+
+    
+
+    //endregion Afip
 
 
 

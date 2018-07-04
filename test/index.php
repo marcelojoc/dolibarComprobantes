@@ -23,11 +23,11 @@ include_once ( '../class/getComprobantes.class.php');
 
 $test = new getComprobantes($db);
 
-$valor = $test->setIdComprobante(14080);
+$test->setIdComprobante(14073);
 
 $data = $test->dataFactura();
 
 
-// var_dump($data);
 
-// var_dump($test->prueba());
+
+var_dump($test->getAfip());
