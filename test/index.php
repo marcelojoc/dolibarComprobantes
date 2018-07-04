@@ -17,17 +17,18 @@
  */
 require_once '../../main.inc.php';
 include_once ( '../class/getComprobantes.class.php');
+include_once ( '../class/genComprobantePdf.class.php');
 
 
 
 
-$test = new getComprobantes($db);
+// $test = new getComprobantes($db);
 
-$test->setIdComprobante(14073);
+// $test->setIdComprobante(14081);
 
-$data = $test->dataFactura();
-
-
+// $data = $test->dataFactura();
 
 
-var_dump($test->getAfip());
+
+
+// var_dump($test);

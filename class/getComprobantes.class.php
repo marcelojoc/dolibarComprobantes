@@ -18,9 +18,9 @@ require_once DOL_DOCUMENT_ROOT."/societe/class/societe.class.php";
  * Esta es una clase dependencia con el modulo de facturacion E de afip
  * Si esta activo  lo va a requerir , de otro modo  puede funcionar sin problemas
  */
-if (! empty($conf->facturaelectronica->enabled)) {
+// if (! empty($conf->facturaelectronica->enabled)) {
 	require_once DOL_DOCUMENT_ROOT . '/facturaElectronica/class/consultaFactura.class.php';  // incluir la clase de facturacion electronica
-}
+// }
 
 /**
  * Put your class' description here
@@ -144,9 +144,9 @@ class getComprobantes // extends CommonObject
         $factura->fetch($this->id); // cargo los datos  para el id de la factura asociada
 
         $this->referenciaFactura= $factura->ref;
-        $this->fecha= $factura->date;
-        $this->fechaVencimiento= $factura->date_lim_reglement;
-        $this->fechaFactura= $factura->date_creation;
+        $this->fecha=  date('d/m/Y', $factura->date);
+        $this->fechaVencimiento=  date('d/m/Y', $factura->date_lim_reglement);
+        $this->fechaFactura=  date('d/m/Y', $factura->date_creation); 
         $this->idCliente= $factura->socid;
 
         $this->total= floatval($factura->total_ttc);
@@ -225,14 +225,14 @@ class getComprobantes // extends CommonObject
     public function getAfip(){
 
         var_dump($conf);
-        if (! empty($conf->facturaelectronica->enabled)) {
+        // if (! empty($conf->facturaelectronica->enabled)) {
 
             // instancio la clase de consulta con la instancia de base de datos y el id de factura
             $afip = new consultaFactura($this->db, $this->id );
             $this->objAfip = $afip->checkValidation();
-            return '$afip->checkValidation()';
+            return $afip->checkValidation();
 
-        }
+        // }
     }
 
 
