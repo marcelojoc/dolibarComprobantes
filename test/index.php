@@ -22,13 +22,14 @@ include_once ( '../class/genComprobantePdf.class.php');
 
 
 
-// $test = new getComprobantes($db);
 
-// $test->setIdComprobante(14081);
+ $test = new genComprobantePdf($db);
+
+ $test->dibujar();
 
 // $data = $test->dataFactura();
 
 
 
 
-// var_dump($test);
+//  var_dump($test);

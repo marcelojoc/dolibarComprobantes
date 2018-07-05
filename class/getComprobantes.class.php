@@ -224,7 +224,7 @@ class getComprobantes // extends CommonObject
      */
     public function getAfip(){
 
-        var_dump($conf);
+        
         // if (! empty($conf->facturaelectronica->enabled)) {
 
             // instancio la clase de consulta con la instancia de base de datos y el id de factura
