@@ -1,72 +1,31 @@
 <?php
 require_once '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
-
 require_once TCPDF_PATH.'tcpdf.php';
+require_once DOL_DOCUMENT_ROOT."/comprobantes/class/getComprobantes.class.php";
 
-
+// $conf->mycompany->dir_output.'/logos/';
+// var_dump($conf->mycompany->dir_output.'/logos/');
+// var_dump(DOL_DATA_ROOT);
 class genComprobantePdf 
 {
+
 
 
 	function __construct($db)
 	{
 
-
+		
 		$this->db = $db;
-		// $this->name = "crabe";
-		// $this->description = $langs->trans('PDFCrabeDescription');
-		// $this->update_main_doc_field = 1;		// Save the name of generated file as the main doc when generating a doc with this template
+		$this->pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+		
 
-		// Dimensiont page
-		$this->type = 'pdf';
-		$formatarray=pdf_getFormat();
-		$this->page_largeur = $formatarray['width'];
-		$this->page_hauteur = $formatarray['height'];
-		$this->format = array($this->page_largeur,$this->page_hauteur);
-		$this->marge_gauche=isset($conf->global->MAIN_PDF_MARGIN_LEFT)?$conf->global->MAIN_PDF_MARGIN_LEFT:10;
-		$this->marge_droite=isset($conf->global->MAIN_PDF_MARGIN_RIGHT)?$conf->global->MAIN_PDF_MARGIN_RIGHT:10;
-		$this->marge_haute =isset($conf->global->MAIN_PDF_MARGIN_TOP)?$conf->global->MAIN_PDF_MARGIN_TOP:10;
-		$this->marge_basse =isset($conf->global->MAIN_PDF_MARGIN_BOTTOM)?$conf->global->MAIN_PDF_MARGIN_BOTTOM:10;
-
-		$this->option_logo = 1;                    // Affiche logo
-		$this->option_tva = 1;                     // Gere option tva FACTURE_TVAOPTION
-		$this->option_modereg = 1;                 // Affiche mode reglement
-		$this->option_condreg = 1;                 // Affiche conditions reglement
-		$this->option_codeproduitservice = 1;      // Affiche code produit-service
-		$this->option_multilang = 1;               // Dispo en plusieurs langues
-		$this->option_escompte = 1;                // Affiche si il y a eu escompte
-		$this->option_credit_note = 1;             // Support credit notes
-		$this->option_freetext = 1;				   // Support add of a personalised text
-		$this->option_draft_watermark = 1;		   // Support add of a watermark on drafts
-
-		$this->franchise=!$mysoc->tva_assuj;
-
-		// // Get source company
-		// $this->emetteur=$mysoc;
-		// if (empty($this->emetteur->country_code)) $this->emetteur->country_code=substr($langs->defaultlang,-2);    // By default, if was not defined
-
-		// // Define position of columns
-		// $this->posxdesc=$this->marge_gauche+1;
-		// if($conf->global->PRODUCT_USE_UNITS)
-		// {
-		// 	$this->posxtva=101;
-		// 	$this->posxup=118;
-		// 	$this->posxqty=135;
-		// 	$this->posxunit=151;
-		// }
-		// else
-		// {
-		// 	$this->posxtva=110;
-		// 	$this->posxup=126;
-		// 	$this->posxqty=145;
-		// }
-		// $this->posxdiscount=162;
-		// $this->posxprogress=126; // Only displayed for situation invoices
-		// $this->postotalht=174;
-		// if (! empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT) || ! empty($conf->global->MAIN_GENERATE_DOCUMENTS_WITHOUT_VAT_COLUMN)) $this->posxtva=$this->posxup;
-		// $this->posxpicture=$this->posxtva - (empty($conf->global->MAIN_DOCUMENTS_WITH_PICTURE_WIDTH)?20:$conf->global->MAIN_DOCUMENTS_WITH_PICTURE_WIDTH);	// width of images
-
+		// set document information
+		$this->pdf->SetCreator(PDF_CREATOR);
+		$this->pdf->SetAuthor('Nicola Asuni');
+		$this->pdf->SetTitle('TCPDF Example 004');
+		$this->pdf->SetSubject('TCPDF Tutorial');
+		$this->pdf->SetKeywords('TCPDF, PDF, example, test, guide');
 
 	}
 
@@ -76,116 +35,153 @@ class genComprobantePdf
 
     public function dibujar(){
 
+// var_dump($conf);
 
-		$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+// exit;
+		$comprobante = new getComprobantes($this->db);
+		
+		$valorComprobante= $comprobante->setIdComprobante(14083);
+		
+		$comprobante->dataFactura();
+		// var_dump($comprobante);
+		
+		// exit;
+		if($valorComprobante['response']){
+
+
+			$this->pdf->SetFont('helvetica', '', 9);
+		
+			// add a page
+			$this->pdf->AddPage();
+		
 	
-		// set font
-		$pdf->SetFont('times', '', 10);
+			$this->pdf->Ln();
+			$tbl = '
+			<table cellspacing="0" cellpadding="5" border="0">
+			
+
+			<tr>
+			  <td WIDTH="40%">  <img src="'.DOL_DATA_ROOT.'/mycompany/logos/images.png'.'"  height="80" width="80" />   </td>
+			  <td WIDTH="20%" align="center" style="font-size: 25;margin-top: 0"> <h1><b>X</b></h1> </td>
+			  <td WIDTH="40%"> <h1><b>RECIBO</b></h1> <br> N°'.$comprobante->referenciaComprobante;
+
+
+
+			  $tbl .=  ' <h3>Fecha:  '.$comprobante->fecha.'</h3>';
+			  $tbl .=  '  </td></tr></table> <HR>';
+			
+			$this->pdf->writeHTML($tbl, true, false, false, false, '');
+	
+				$txt = '<p><b>Recibi de: </b>'.$comprobante->nombreCliente.' - '.$comprobante->direccionCliente.'</p><br>
+				
+				<p><b>Cantidad de Pesos: $</b>'.$comprobante->monto.'</p><br>
+				
+				<p><b>Por los siguientes conceptos: </b>'.$comprobante->referenciaFactura ;
+			
+			if($comprobante->objAfip != false){
+
+				$txt.= ' - Afip '.$comprobante->objAfip->ptovta.'-'.str_pad($comprobante->objAfip->nComprobanteAfip, 8, "0", STR_PAD_LEFT);
+			}
+			
+				$txt.= '</p><br>';
+	
+			$this->pdf->writeHTML($txt, true, false, false, false, '');
+			$this->pdf->Ln();
+
+			$tblDatos = '
+			<table cellspacing="0" cellpadding="5" border="1">
+			<tr>
+				<th  colspan="3" align="center">Detalle de factura pagada</th>
+				<th  colspan="4" align="center"> Detalle de valores recibidos</th>
+			</tr>
+			<tr>
+			  <td><strong>Comp Nº</strong></td>
+			  <td><strong>Fecha</strong></td>
+			  <td><strong>Importe</strong></td>
+			  <td><strong>Medio de Pago</strong></td>
+			  <td><strong>Banco</strong></td>
+			  <td><strong>Fecha Venc</strong></td>
+			  <td><strong>Importe</strong></td>
+			</tr>
+	
+			<tr>
+			  <td>'.$comprobante->referenciaFactura.'</td>
+			  <td>'.$comprobante->fechaFactura.'</td>
+			  <td> $'.$comprobante->total.'</td>
+			  <td>'.$comprobante->medioDePago.'</td>
+			  <td>'.$comprobante->banco.'</td>
+			  <td>'.$comprobante->fechaVencimiento.'</td>
+			  <td> $'.$comprobante->monto.'</td>
+			</tr>
+	
+	
+	
+	
+	
+		  </table>
+			';
+			
+			 $this->pdf->writeHTML($tblDatos, true, false, false, false, '');
+	
+	// <img src="http://placehold.it/32x32" border="0" height="32" width="32" />
+			$htmlTotal = '
+			
+			
+			<H3 align="right"> Total : $ '.$comprobante->monto.' </H3>
+			<H3 align="right" color="red"> Pendiente :  $'.($comprobante->total - $comprobante->montoTotalPagado).'</H3>
+	
+			<hr>';
+	
+			$this->pdf->writeHTML($htmlTotal, true, false, false, false, '');
+	
+	
+	
+	
+	
+	
+			$this->pdf->lastPage();
+			
+			// ---------------------------------------------------------
+			
+			//Close and output PDF document
+			$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', 'D');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		}else{  //si hay algun error imprime pdf de error
+
+			$this->pdf->SetFont('helvetica', '', 10);
 		
-		// add a page
-		$pdf->AddPage();
+			// add a page
+			$this->pdf->AddPage();
+
+			$txt = '<p><b>'.$valorComprobante['msg'].'</b></p><br>';
+	
+			$this->pdf->writeHTML($txt, true, false, false, false, '');
+			$this->pdf->lastPage();
+
+			$this->pdf->Output('example_005.pdf', 'I');
+
+		}
+
+
 		
-
-
-
-		$pdf->Ln();
-		$tbl = '
-		<table cellspacing="0" cellpadding="5" border="1">
-		<tr>
-		  <th  colspan="3">Detalle de factura pagada</th>
-		  <th  colspan="4"> Detalle de valores recibidos</th>
-		</tr>
-		<tr>
-		  <td><strong>Factura Nº</strong></td>
-		  <td>Fecha</td>
-		  <td>Importe</td>
-		  <td>Medio de Pago</td>
-		  <td>Banco</td>
-		  <td>Fecha Venc</td>
-		  <td>Importe</td>
-		</tr>
-
-		<tr>
-		  <td>Fac-35898</td>
-		  <td>22/8/2018</td>
-		  <td>$5200</td>
-		  <td>EFECTIVO</td>
-		  <td></td>
-		  <td>25/8/2018</td>
-		  <td>$5200</td>
-		</tr>
-
-
-
-
-
-	  </table>
-		';
-		
-		$pdf->writeHTML($tbl, true, false, false, false, '');
-
-		$txt = '<b>Lorem ipsum </b> <br>dolor sit amet, consectetur adipisicing </b> elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
-
-		$pdf->writeHTML($txt, true, false, false, false, '');
-		$pdf->Ln();
-		$tbl = '
-		<table cellspacing="0" cellpadding="5" border="1">
-		<tr>
-		  <th  colspan="3">Detalle de factura pagada</th>
-		  <th  colspan="4"> Detalle de valores recibidos</th>
-		</tr>
-		<tr>
-		  <td><strong>Factura Nº</strong></td>
-		  <td>Fecha</td>
-		  <td>Importe</td>
-		  <td>Medio de Pago</td>
-		  <td>Banco</td>
-		  <td>Fecha Venc</td>
-		  <td>Importe</td>
-		</tr>
-
-		<tr>
-		  <td>Fac-35898</td>
-		  <td>22/8/2018</td>
-		  <td>$5200</td>
-		  <td>EFECTIVO</td>
-		  <td></td>
-		  <td>25/8/2018</td>
-		  <td>$5200</td>
-		</tr>
-
-
-
-
-
-	  </table>
-		';
-		
-		$pdf->writeHTML($tbl, true, false, false, false, '');
-
-// <img src="http://placehold.it/32x32" border="0" height="32" width="32" />
-		$htmlTotal = '
-		
-		
-		<H3 align="right"> Total : $5200 </H3>
-		<H3 align="right"> Pendiente : $0 </H3>
-
-		<hr>
-		';
-
-		$pdf->writeHTML($htmlTotal, true, false, false, false, '');
-
-
-
-
-
-
-		$pdf->lastPage();
-		
-		// ---------------------------------------------------------
-		
-		//Close and output PDF document
-		$pdf->Output('example_005.pdf', 'I');
 
 
 

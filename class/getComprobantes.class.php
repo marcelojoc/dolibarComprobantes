@@ -10,7 +10,7 @@
 // Put here all includes required by your class file
 
 require_once DOL_DOCUMENT_ROOT."/compta/facture/class/facture.class.php";
-require_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
+// require_once DOL_DOCUMENT_ROOT.'/compta/paiement/class/paiement.class.php';
 require_once DOL_DOCUMENT_ROOT."/societe/class/societe.class.php";
 //require_once DOL_DOCUMENT_ROOT."/product/class/product.class.php";
 
@@ -43,6 +43,10 @@ class getComprobantes // extends CommonObject
     public $monto;  // este valor es el monto pagado puede ser inferior al valor total  en ese caso quedaria adeudando
     public $montoTotalPagado;  // este valor es la sumatoria de los pagos para una factura
     public $pagada;  // si esta pagada esta en 1  si no el valor paie  en 0
+    public $medioDePago;  // si es cheque o efectivo
+    public $numeroDePago;  // si es cheque o efectivo
+    public $banco;  // si es cheque o efectivo
+    public $referenciaComprobante;  // refrerencia del comprobante PAY1807-14074
     public $objAfip= false;  // objeto con todo los datos de la factura Electronica
 
 
@@ -144,7 +148,7 @@ class getComprobantes // extends CommonObject
         $factura->fetch($this->id); // cargo los datos  para el id de la factura asociada
 
         $this->referenciaFactura= $factura->ref;
-        $this->fecha=  date('d/m/Y', $factura->date);
+        // $this->fecha=  date('d/m/Y', $factura->date);
         $this->fechaVencimiento=  date('d/m/Y', $factura->date_lim_reglement);
         $this->fechaFactura=  date('d/m/Y', $factura->date_creation); 
         $this->idCliente= $factura->socid;
@@ -152,12 +156,9 @@ class getComprobantes // extends CommonObject
         $this->total= floatval($factura->total_ttc);
         $this->pagada= $factura->paye;
 
-        $paiement = new Paiement($this->db); // instancio la clase paiement pata traer valores del pago realizado
-        $paiement->fetch($this->comprobante);   // listo los valores del pago
-
-        $this->monto= floatval($paiement->amount);
 
         $this->getClient();  // asigno los datos del cliente
+        $this->getPaiement();   // asigno los datos del PAGO
         $this->montoTotalPagado = $this->getTotalAmount(); // sumatoria de los pagos realizados para esta factura
         $this->getAfip();  // si esta activo el modulo trae el valor de datos electronicos, si no esta trae falso y si no esta activo el paramentro afip queda NULL
     }
@@ -214,6 +215,78 @@ class getComprobantes // extends CommonObject
         }
 
     }
+
+
+
+// este metodo  trae todos los valores de la tabla paiement 
+// 
+    private function getPaiement(){
+
+        // SELECT * FROM llx_paiement AS p , llx_bank AS b WHERE  p.fk_bank = b.rowid AND  p.rowid = 14083
+        $sql = "SELECT";
+        $sql.= " *";
+        $sql.= " FROM " . MAIN_DB_PREFIX . "paiement as p ,";
+        $sql.=   MAIN_DB_PREFIX . "bank as b ";
+        $sql.= " WHERE p.fk_bank = b.rowid ";
+        $sql.= " AND p.rowid = " . $this->comprobante;
+        
+        dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
+        $resql = $this->db->query($sql);
+   
+
+        if ($resql->num_rows > 0) {
+
+            if ($this->db->num_rows($resql)) {
+                $obj = $this->db->fetch_object($resql);
+
+                $this->monto= floatval($obj->amount);
+                $medio = $obj->fk_paiement;
+                $this->numeroDePago = $obj->num_paiement;
+                $this->banco = $obj->banque;
+                $this->referenciaComprobante = $obj->ref;
+                $this->fecha=  date('d/m/Y', $obj->datep);
+                
+            }
+
+            switch ($medio) {
+                case '4':
+                    $this->medioDePago ='EFECTIVO';
+                    break;
+                case '7':
+                    $this->medioDePago ='CHEQUE';
+                    break;
+                case '6':
+                    $this->medioDePago ='TRANSFERENCIA';
+                    break;
+                default:
+                $this->medioDePago ='SIN DEFINIR';
+            }
+    
+            $this->db->free($resql);
+
+            return $total;
+
+        } else {
+            $this->error = "Error " . $this->db->lasterror();
+            dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
+
+            return false;
+        }
+
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
 
 
     //region Afip
