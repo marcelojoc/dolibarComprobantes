@@ -33,14 +33,14 @@ class genComprobantePdf
 
 
 
-    public function dibujar(){
+    public function dibujar($comp){
 
 // var_dump($conf);
 
 // exit;
 		$comprobante = new getComprobantes($this->db);
 		
-		$valorComprobante= $comprobante->setIdComprobante(14083);
+		$valorComprobante= $comprobante->setIdComprobante($comp);
 		
 		$comprobante->dataFactura();
 		// var_dump($comprobante);

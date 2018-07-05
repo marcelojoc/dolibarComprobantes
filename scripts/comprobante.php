@@ -12,4 +12,4 @@ $comprobante = (GETPOST('comp', 'int') ? GETPOST('comp', 'int') : GETPOST('comp'
 
  $test = new genComprobantePdf($db);
 
- $test->dibujar();
+ $test->dibujar($comprobante);
