@@ -256,7 +256,13 @@ class getComprobantes // extends CommonObject
                     $this->medioDePago ='CHEQUE';
                     break;
                 case '6':
-                    $this->medioDePago ='TRANSFERENCIA';
+                    $this->medioDePago ='C.BANCARIA';
+                    break;
+                case '54':
+                    $this->medioDePago ='RETENCION';
+                    break;
+                case '55':
+                    $this->medioDePago ='TRANS.BANCARIA';
                     break;
                 default:
                 $this->medioDePago ='SIN DEFINIR';

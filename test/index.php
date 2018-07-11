@@ -19,17 +19,51 @@ require_once '../../main.inc.php';
 include_once ( '../class/getComprobantes.class.php');
 include_once ( '../class/genComprobantePdf.class.php');
 
+ var_dump($conf->global->MAIN_INFO_SOCIETE_NOM);
+ var_dump($conf->global->MAIN_INFO_SOCIETE_ADDRESS);
+ var_dump($conf->global->MAIN_INFO_SOCIETE_ZIP);
+ var_dump($conf->global->MAIN_INFO_SOCIETE_TOWN);
+ var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO_SMALL);
+ var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO_MINI);
+ var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO);
+ var_dump($conf->global->MAIN_INFO_SOCIETE_WEB);
+ var_dump($conf->global->MAIN_INFO_SOCIETE_MAIL);
+ var_dump($conf->global->MAIN_INFO_SOCIETE_TEL);
+ var_dump($conf->global->MAIN_INFO_SIRET);
+ var_dump($conf->global->MAIN_INFO_SIREN);
+?>
 
 
 
 
- $test = new genComprobantePdf($db);
 
- $test->dibujar();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+<table cellspacing="0" cellpadding="5" border="1">
 
-// $data = $test->dataFactura();
+
+    <tr>
+    <td WIDTH="40%">  <img  src="http://localhost/dolibar_local/documents/mycompany/logos/images.png"  height="60" width="100" />   </td>
+    <td WIDTH="20%" align="center" style="font-size: 25;margin-top: 0;  vertical-align: top;"> <h1><b>X</b></h1> </td>
+    <td WIDTH="40%"> <h1><b>RECIBO</b></h1> <br> N° zzzzzzzzzzzzzzzzz
+
+
+    <h3>Fecha: 55555555</h3>
+    </td></tr>
 
 
 
+</table> <HR>
 
-//  var_dump($test);
+
+
+</body>
+</html>

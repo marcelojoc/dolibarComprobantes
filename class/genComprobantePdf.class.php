@@ -1,18 +1,19 @@
 <?php
-require_once '../../main.inc.php';
+// require_once '../../main.inc.php';
+require_once DOL_DOCUMENT_ROOT.'/main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once TCPDF_PATH.'tcpdf.php';
 require_once DOL_DOCUMENT_ROOT."/comprobantes/class/getComprobantes.class.php";
 
 // $conf->mycompany->dir_output.'/logos/';
 // var_dump($conf->mycompany->dir_output.'/logos/');
-// var_dump(DOL_DATA_ROOT);
+// var_dump(DOL_URL_ROOT);
 class genComprobantePdf 
 {
 
 
 
-	function __construct($db)
+	function __construct($db, $langs ,$conf)
 	{
 
 		
@@ -23,9 +24,12 @@ class genComprobantePdf
 		// set document information
 		$this->pdf->SetCreator(PDF_CREATOR);
 		$this->pdf->SetAuthor('Nicola Asuni');
-		$this->pdf->SetTitle('TCPDF Example 004');
+		$this->pdf->SetTitle('PDF COMPROBANTES');
 		$this->pdf->SetSubject('TCPDF Tutorial');
 		$this->pdf->SetKeywords('TCPDF, PDF, example, test, guide');
+		$this->langs = $langs;
+		$this->conf = $conf;
+
 
 	}
 
@@ -35,7 +39,8 @@ class genComprobantePdf
 
     public function dibujar($comp){
 
-// var_dump($conf);
+		
+// var_dump(DOL_DOCUMENT_ROOT);
 
 // exit;
 		$comprobante = new getComprobantes($this->db);
@@ -59,22 +64,35 @@ class genComprobantePdf
 			$tbl = '
 			<table cellspacing="0" cellpadding="5" border="0">
 			
-
 			<tr>
-			  <td WIDTH="40%">  <img src="'.DOL_DATA_ROOT.'/mycompany/logos/images.png'.'"  height="80" width="80" />   </td>
-			  <td WIDTH="20%" align="center" style="font-size: 25;margin-top: 0"> <h1><b>X</b></h1> </td>
-			  <td WIDTH="40%"> <h1><b>RECIBO</b></h1> <br> N°'.$comprobante->referenciaComprobante;
+			  <td WIDTH="40%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="100" width="100" />
+			  
+			  <br><small>'.$this->conf['empresa']. ' , '.$this->conf['direccion']. ' , '.$this->conf['ciudad'].'</small>
+			
+			  </td>';
+
+				$tbl .='  <td WIDTH="20%" align="center" style="font-size: 25; align: top;"> <h1><b>X</b></h1> </td>';
+				$tbl .='  <td WIDTH="40%"> <h1><b>RECIBO</b></h1>  N° '.$comprobante->referenciaComprobante;
 
 
 
-			  $tbl .=  ' <h3>Fecha:  '.$comprobante->fecha.'</h3>';
+				$tbl .=  ' <h3>Fecha:  '.$comprobante->fechaFactura.'</h3>';
+				$tbl .=  ' <small>CUIT:  '.$this->conf['cuit']. '<br> IIBB: '.$this->conf['iibb'].'</small>';
+
 			  $tbl .=  '  </td></tr></table> <HR>';
 			
 			$this->pdf->writeHTML($tbl, true, false, false, false, '');
+
+				$textoMonto= strtoupper($this->langs->getLabelFromNumber($comprobante->monto ,0|0));
+				
+// $str = $langs->getLabelFromNumber($comprobante->monto,0|1);
+// $str = strtoupper($str);
+
+//  var_dump($textoMonto);
 	
 				$txt = '<p><b>Recibi de: </b>'.$comprobante->nombreCliente.' - '.$comprobante->direccionCliente.'</p><br>
 				
-				<p><b>Cantidad de Pesos: $</b>'.$comprobante->monto.'</p><br>
+				<p><b>Cantidad de Pesos: </b>'.$textoMonto.'</p><br>
 				
 				<p><b>Por los siguientes conceptos: </b>'.$comprobante->referenciaFactura ;
 			
@@ -105,7 +123,7 @@ class genComprobantePdf
 			</tr>
 	
 			<tr>
-			  <td>'.$comprobante->referenciaFactura.'</td>
+			  <td>'.$comprobante->referenciaComprobante.'</td>
 			  <td>'.$comprobante->fechaFactura.'</td>
 			  <td> $'.$comprobante->total.'</td>
 			  <td>'.$comprobante->medioDePago.'</td>
@@ -144,19 +162,7 @@ class genComprobantePdf
 			// ---------------------------------------------------------
 			
 			//Close and output PDF document
-			$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', 'D');
-
-
-
-
-
-
-
-
-
-
-
-
+			$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', 'I');
 
 
 
@@ -176,7 +182,7 @@ class genComprobantePdf
 			$this->pdf->writeHTML($txt, true, false, false, false, '');
 			$this->pdf->lastPage();
 
-			$this->pdf->Output('example_005.pdf', 'I');
+			$this->pdf->Output('ERROR.pdf', 'I');
 
 		}
 

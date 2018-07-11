@@ -109,7 +109,7 @@ class modComprobantes extends DolibarrModules
 
         // Dependencies
         // List of modules id that must be enabled if this module is enabled
-        $this->depends = array();
+        $this->depends = array("numberwords");
         // List of modules id to disable if this one is disabled
         $this->requiredby = array();
         // Minimum version of PHP required by module
