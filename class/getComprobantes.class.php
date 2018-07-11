@@ -48,6 +48,7 @@ class getComprobantes // extends CommonObject
     public $banco;  // si es cheque o efectivo
     public $referenciaComprobante;  // refrerencia del comprobante PAY1807-14074
     public $objAfip= false;  // objeto con todo los datos de la factura Electronica
+    public $nota;  // nota del pago realizado
 
 
     
@@ -224,12 +225,15 @@ class getComprobantes // extends CommonObject
 
         // SELECT * FROM llx_paiement AS p , llx_bank AS b WHERE  p.fk_bank = b.rowid AND  p.rowid = 14083
         $sql = "SELECT";
-        $sql.= " *";
+        $sql.= " p.rowid,p.ref, p.datep, p.amount, p.fk_paiement, p.note,  ";
+        $sql.= " b.banque ";
         $sql.= " FROM " . MAIN_DB_PREFIX . "paiement as p ,";
         $sql.=   MAIN_DB_PREFIX . "bank as b ";
         $sql.= " WHERE p.fk_bank = b.rowid ";
         $sql.= " AND p.rowid = " . $this->comprobante;
         
+
+        // echo $sql;
         dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
         $resql = $this->db->query($sql);
    
@@ -239,12 +243,14 @@ class getComprobantes // extends CommonObject
             if ($this->db->num_rows($resql)) {
                 $obj = $this->db->fetch_object($resql);
 
+                // var_dump($obj);
                 $this->monto= floatval($obj->amount);
                 $medio = $obj->fk_paiement;
                 $this->numeroDePago = $obj->num_paiement;
                 $this->banco = $obj->banque;
                 $this->referenciaComprobante = $obj->ref;
                 $this->fecha=  date('d/m/Y', $obj->datep);
+                $this->nota= $obj->note;
                 
             }
 

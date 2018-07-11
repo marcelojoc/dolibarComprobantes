@@ -31,6 +31,12 @@ include_once ( '../class/genComprobantePdf.class.php');
  var_dump($conf->global->MAIN_INFO_SOCIETE_TEL);
  var_dump($conf->global->MAIN_INFO_SIRET);
  var_dump($conf->global->MAIN_INFO_SIREN);
+ var_dump(strtoupper($langs->getLabelFromNumber('704.85' ,0|0)));
+ var_dump(strtoupper($langs->getLabelFromNumber('85' ,0|0)));
+
+
+
+
 ?>
 
 

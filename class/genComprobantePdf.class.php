@@ -83,7 +83,7 @@ class genComprobantePdf
 			
 			$this->pdf->writeHTML($tbl, true, false, false, false, '');
 
-				$textoMonto= strtoupper($this->langs->getLabelFromNumber($comprobante->monto ,0|0));
+				$textoMonto= strtoupper($this->langs->getLabelFromNumber($comprobante->monto ,0|1));
 				
 // $str = $langs->getLabelFromNumber($comprobante->monto,0|1);
 // $str = strtoupper($str);
@@ -92,7 +92,7 @@ class genComprobantePdf
 	
 				$txt = '<p><b>Recibi de: </b>'.$comprobante->nombreCliente.' - '.$comprobante->direccionCliente.'</p><br>
 				
-				<p><b>Cantidad de Pesos: </b>'.$textoMonto.'</p><br>
+				<p><b>Cantidad : </b>'.$textoMonto.'</p><br>
 				
 				<p><b>Por los siguientes conceptos: </b>'.$comprobante->referenciaFactura ;
 			
@@ -118,7 +118,7 @@ class genComprobantePdf
 			  <td><strong>Importe</strong></td>
 			  <td><strong>Medio de Pago</strong></td>
 			  <td><strong>Banco</strong></td>
-			  <td><strong>Fecha Venc</strong></td>
+			  <td><strong>Nota</strong></td>
 			  <td><strong>Importe</strong></td>
 			</tr>
 	
@@ -128,7 +128,7 @@ class genComprobantePdf
 			  <td> $'.$comprobante->total.'</td>
 			  <td>'.$comprobante->medioDePago.'</td>
 			  <td>'.$comprobante->banco.'</td>
-			  <td>'.$comprobante->fechaVencimiento.'</td>
+			  <td>'.$comprobante->nota.'</td>
 			  <td> $'.$comprobante->monto.'</td>
 			</tr>
 	
