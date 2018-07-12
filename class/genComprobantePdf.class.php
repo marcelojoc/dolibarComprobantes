@@ -65,23 +65,26 @@ class genComprobantePdf
 			<table cellspacing="0" cellpadding="5" border="0">
 			
 			<tr>
-			  <td WIDTH="40%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="100" width="100" />
+			  <td WIDTH="45%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="110"  />
 			  
-			  <br><small>'.$this->conf['empresa']. ' , '.$this->conf['direccion']. ' , '.$this->conf['ciudad'].'</small>
-			
+			  <br><small>'.$this->conf['empresa']. ' , '.$this->conf['direccion']. ' , '.$this->conf['dep']. ' , '.$this->conf['ciudad']
+			  . ' , '.$this->conf['tel']
+			  . ' , '.$this->conf['email']
+			  . ' , '.$this->conf['web']
+			  .'</small>
 			  </td>';
 
-				$tbl .='  <td WIDTH="20%" align="center" style="font-size: 25; align: top;"> <h1><b>X</b></h1> </td>';
-				$tbl .='  <td WIDTH="40%"> <h1><b>RECIBO</b></h1>  N° '.$comprobante->referenciaComprobante;
+				$tbl .='  <td WIDTH="10%" align="center" style="font-size: 25; align: top;"> <h1><b>X</b></h1> </td>';
+				$tbl .='  <td WIDTH="45%"> <small>DOCUMENTO NO VALIDO COMO FACTURA</small><h1><b>RECIBO</b></h1> N° '.$comprobante->referenciaComprobante;
 
 
 
 				$tbl .=  ' <h3>Fecha:  '.$comprobante->fechaFactura.'</h3>';
-				$tbl .=  ' <small>CUIT:  '.$this->conf['cuit']. '<br> IIBB: '.$this->conf['iibb'].'</small>';
+				$tbl .=  ' <small>CUIT:  '.$this->conf['cuit']. '  IIBB: '.$this->conf['iibb'].'</small>';
 
-			  $tbl .=  '  </td></tr></table> <HR>';
+			  	$tbl .=  '  </td></tr></table> <HR>';
 			
-			$this->pdf->writeHTML($tbl, true, false, false, false, '');
+				$this->pdf->writeHTML($tbl, true, false, false, false, '');
 
 				$textoMonto= strtoupper($this->langs->getLabelFromNumber($comprobante->monto ,0|1));
 				
