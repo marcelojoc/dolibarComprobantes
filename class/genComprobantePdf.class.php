@@ -67,7 +67,7 @@ class genComprobantePdf
 			<tr>
 			  <td WIDTH="45%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="110"  />
 			  
-			  <br><small>'.$this->conf['empresa']. ' - '.$this->conf['direccion']. ' - '.$this->conf['dep']. ' , '.$this->conf['ciudad']
+			  <br><small>'.$this->conf['empresa']. ' - '.$this->conf['direccion'].  ' - '.$this->conf['ciudad']
 			  . ' - Tel:'.$this->conf['tel']
 			  . ' - '.$this->conf['email']
 			  . ' - <b>'.$this->conf['web']
@@ -92,8 +92,8 @@ class genComprobantePdf
 				// var_dump($porciones[1]);
 				// var_dump($comprobante->monto);
 				
-
-				$textoMonto= strtoupper($this->langs->getLabelFromNumber($porciones[0] ,0|1));
+				$textoMonto= 'PESOS ';
+				$textoMonto.= strtoupper($this->langs->getLabelFromNumber($porciones[0] ,0|0));
 				$textoMonto.= ' CON ';
 				$textoMonto.= strtoupper($this->langs->getLabelFromNumber($porciones[1] ,0|0));
 				$textoMonto.= ' CENT ';
@@ -175,7 +175,7 @@ class genComprobantePdf
 			// ---------------------------------------------------------
 			
 			//Close and output PDF document
-			$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', 'I');
+			$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', 'D');
 
 
 
