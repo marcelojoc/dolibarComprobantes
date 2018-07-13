@@ -67,32 +67,41 @@ class genComprobantePdf
 			<tr>
 			  <td WIDTH="45%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="110"  />
 			  
-			  <br><small>'.$this->conf['empresa']. ' , '.$this->conf['direccion']. ' , '.$this->conf['dep']. ' , '.$this->conf['ciudad']
-			  . ' , '.$this->conf['tel']
-			  . ' , '.$this->conf['email']
-			  . ' , '.$this->conf['web']
-			  .'</small>
+			  <br><small>'.$this->conf['empresa']. ' - '.$this->conf['direccion']. ' - '.$this->conf['dep']. ' , '.$this->conf['ciudad']
+			  . ' - Tel:'.$this->conf['tel']
+			  . ' - '.$this->conf['email']
+			  . ' - <b>'.$this->conf['web']
+			  .'</b></small>
 			  </td>';
 
 				$tbl .='  <td WIDTH="10%" align="center" style="font-size: 25; align: top;"> <h1><b>X</b></h1> </td>';
 				$tbl .='  <td WIDTH="45%"> <small>DOCUMENTO NO VALIDO COMO FACTURA</small><h1><b>RECIBO</b></h1> N° '.$comprobante->referenciaComprobante;
 
-
-
 				$tbl .=  ' <h3>Fecha:  '.$comprobante->fechaFactura.'</h3>';
-				$tbl .=  ' <small>CUIT:  '.$this->conf['cuit']. '  IIBB: '.$this->conf['iibb'].'</small>';
+				$tbl .=  ' <small>CUIT:  '.$this->conf['cuit']. ' -  IIBB: '.$this->conf['iibb'].' <br><b> IVA RESPONSABLE INSCRIPTO</b></small>';
 
 			  	$tbl .=  '  </td></tr></table> <HR>';
 			
 				$this->pdf->writeHTML($tbl, true, false, false, false, '');
 
-				$textoMonto= strtoupper($this->langs->getLabelFromNumber($comprobante->monto ,0|1));
+				// separo el monto por que no lo escribe correctamente el modulo de dolibarr
+
+				$entero= strval($comprobante->monto);
+				$porciones = explode(".", $entero);
+				// var_dump($porciones[0]);
+				// var_dump($porciones[1]);
+				// var_dump($comprobante->monto);
 				
+
+				$textoMonto= strtoupper($this->langs->getLabelFromNumber($porciones[0] ,0|1));
+				$textoMonto.= ' CON ';
+				$textoMonto.= strtoupper($this->langs->getLabelFromNumber($porciones[1] ,0|0));
+				$textoMonto.= ' CENT ';
 // $str = $langs->getLabelFromNumber($comprobante->monto,0|1);
 // $str = strtoupper($str);
 
 //  var_dump($textoMonto);
-	
+// exit;
 				$txt = '<p><b>Recibi de: </b>'.$comprobante->nombreCliente.' - '.$comprobante->direccionCliente.'</p><br>
 				
 				<p><b>Cantidad : </b>'.$textoMonto.'</p><br>
@@ -101,7 +110,8 @@ class genComprobantePdf
 			
 			if($comprobante->objAfip != false){
 
-				$txt.= ' - Afip '.$comprobante->objAfip->ptovta.'-'.str_pad($comprobante->objAfip->nComprobanteAfip, 8, "0", STR_PAD_LEFT);
+				$datoAfip= $comprobante->objAfip->ptovta.'-'.str_pad($comprobante->objAfip->nComprobanteAfip, 8, "0", STR_PAD_LEFT);
+				$txt.= ' - Afip '.$datoAfip;
 			}
 			
 				$txt.= '</p><br>';
@@ -126,7 +136,7 @@ class genComprobantePdf
 			</tr>
 	
 			<tr>
-			  <td>'.$comprobante->referenciaComprobante.'</td>
+			  <td>'.$comprobante->referenciaFactura.' '.$datoAfip.'</td>
 			  <td>'.$comprobante->fechaFactura.'</td>
 			  <td> $'.$comprobante->total.'</td>
 			  <td>'.$comprobante->medioDePago.'</td>
@@ -149,7 +159,7 @@ class genComprobantePdf
 			
 			
 			<H3 align="right"> Total : $ '.$comprobante->monto.' </H3>
-			<H3 align="right" color="red"> Pendiente :  $'.($comprobante->total - $comprobante->montoTotalPagado).'</H3>
+			<H3 align="right" color="red"> Pendiente :  $'.(intval($comprobante->total - $comprobante->montoTotalPagado)).'</H3>
 	
 			<hr>';
 	

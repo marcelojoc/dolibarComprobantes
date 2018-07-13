@@ -201,9 +201,8 @@ class getComprobantes // extends CommonObject
             while ($obj = $this->db->fetch_object($resql)) {
                
                 $total+= floatval($obj->amount);
- 
             }
-
+            
             $this->db->free($resql);
 
             return $total;
