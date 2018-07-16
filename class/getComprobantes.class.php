@@ -44,7 +44,7 @@ class getComprobantes // extends CommonObject
     public $montoTotalPagado;  // este valor es la sumatoria de los pagos para una factura
     public $pagada;  // si esta pagada esta en 1  si no el valor paie  en 0
     public $medioDePago;  // si es cheque o efectivo
-    public $numeroDePago;  // si es cheque o efectivo
+    public $numeroDePago;  // numero del cheque
     public $banco;  // si es cheque o efectivo
     public $referenciaComprobante;  // refrerencia del comprobante PAY1807-14074
     public $objAfip= false;  // objeto con todo los datos de la factura Electronica
@@ -224,7 +224,7 @@ class getComprobantes // extends CommonObject
 
         // SELECT * FROM llx_paiement AS p , llx_bank AS b WHERE  p.fk_bank = b.rowid AND  p.rowid = 14083
         $sql = "SELECT";
-        $sql.= " p.rowid,p.ref, p.datep, p.amount, p.fk_paiement, p.note,  ";
+        $sql.= " p.rowid,p.ref, p.datep, p.amount, p.fk_paiement, p.note, p.num_paiement , ";
         $sql.= " b.banque ";
         $sql.= " FROM " . MAIN_DB_PREFIX . "paiement as p ,";
         $sql.=   MAIN_DB_PREFIX . "bank as b ";
@@ -242,7 +242,6 @@ class getComprobantes // extends CommonObject
             if ($this->db->num_rows($resql)) {
                 $obj = $this->db->fetch_object($resql);
 
-                // var_dump($obj);
                 $this->monto= floatval($obj->amount);
                 $medio = $obj->fk_paiement;
                 $this->numeroDePago = $obj->num_paiement;

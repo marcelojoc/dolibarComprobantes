@@ -139,7 +139,7 @@ class genComprobantePdf
 			  <td>'.$comprobante->referenciaFactura.' '.$datoAfip.'</td>
 			  <td>'.$comprobante->fechaFactura.'</td>
 			  <td> $'.$comprobante->total.'</td>
-			  <td>'.$comprobante->medioDePago.'</td>
+			  <td>'.$comprobante->medioDePago.' '.$comprobante->numeroDePago.'</td>
 			  <td>'.$comprobante->banco.'</td>
 			  <td>'.$comprobante->nota.'</td>
 			  <td> $'.$comprobante->monto.'</td>
