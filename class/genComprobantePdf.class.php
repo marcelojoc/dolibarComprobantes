@@ -77,7 +77,7 @@ class genComprobantePdf
 				$tbl .='  <td WIDTH="10%" align="center" style="font-size: 25; align: top;"> <h1><b>X</b></h1> </td>';
 				$tbl .='  <td WIDTH="45%"> <small>DOCUMENTO NO VALIDO COMO FACTURA</small><h1><b>RECIBO</b></h1> N° '.$comprobante->referenciaComprobante;
 
-				$tbl .=  ' <h3>Fecha:  '.$comprobante->fechaFactura.'</h3>';
+				$tbl .=  ' <h3>Fecha:  '.$comprobante->fecha.'</h3>';
 				$tbl .=  ' <small>CUIT:  '.$this->conf['cuit']. ' -  IIBB: '.$this->conf['iibb'].' <br><b> IVA RESPONSABLE INSCRIPTO</b></small>';
 
 			  	$tbl .=  '  </td></tr></table> <HR>';

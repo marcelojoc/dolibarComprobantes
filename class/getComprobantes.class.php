@@ -224,7 +224,7 @@ class getComprobantes // extends CommonObject
 
         // SELECT * FROM llx_paiement AS p , llx_bank AS b WHERE  p.fk_bank = b.rowid AND  p.rowid = 14083
         $sql = "SELECT";
-        $sql.= " p.rowid,p.ref, p.datep, p.amount, p.fk_paiement, p.note, p.num_paiement , ";
+        $sql.= " p.rowid,p.ref, DATE_FORMAT(p.datep, '%d/%m/%Y') AS datep , p.amount, p.fk_paiement, p.note, p.num_paiement , ";
         $sql.= " b.banque ";
         $sql.= " FROM " . MAIN_DB_PREFIX . "paiement as p ,";
         $sql.=   MAIN_DB_PREFIX . "bank as b ";
@@ -232,7 +232,7 @@ class getComprobantes // extends CommonObject
         $sql.= " AND p.rowid = " . $this->comprobante;
         
 
-        // echo $sql;
+        //  echo $sql;
         dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
         $resql = $this->db->query($sql);
    
@@ -247,7 +247,7 @@ class getComprobantes // extends CommonObject
                 $this->numeroDePago = $obj->num_paiement;
                 $this->banco = $obj->banque;
                 $this->referenciaComprobante = $obj->ref;
-                $this->fecha=  date('d/m/Y', $obj->datep);
+                $this->fecha=  $obj->datep;
                 $this->nota= $obj->note;
                 
             }
