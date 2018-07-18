@@ -23,16 +23,16 @@ include_once ( '../class/genComprobantePdf.class.php');
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_ADDRESS);
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_ZIP);
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_TOWN);
- var_dump(DOL_DATA_ROOT);
+//  var_dump(DOL_DATA_ROOT);
 
- var_dump($conf->global->MAIN_MONNAIE);
- var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO_MINI);
+//  var_dump($conf->global->MAIN_MONNAIE);
+//  var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO_MINI);
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO);
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_WEB);
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_MAIL);
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_TEL);
- var_dump($conf->global->MAIN_INFO_SIRET);
- var_dump($conf->global->MAIN_INFO_SIREN);
+//  var_dump($conf->global->MAIN_INFO_SIRET);
+//  var_dump($conf->global->MAIN_INFO_SIREN);
 
 
 
@@ -40,7 +40,33 @@ include_once ( '../class/genComprobantePdf.class.php');
 //  var_dump(strtoupper($langs->getLabelFromNumber('85' ,0|0)));
 
 
- echo json_encode($conf->global);
+//  echo json_encode($conf->global);
+
+
+ $config = array( 
+
+    'empresa'=>$conf->global->MAIN_INFO_SOCIETE_NOM,
+    'direccion'=>$conf->global->MAIN_INFO_SOCIETE_ADDRESS,
+    'cpos'=>$conf->global->MAIN_INFO_SOCIETE_ZIP,
+    'ciudad'=>'Mendoza',
+    'dep'=>$conf->global->MAIN_INFO_SOCIETE_TOWN,
+    'tel'=>$conf->global->MAIN_INFO_SOCIETE_TEL,
+    'web'=>$conf->global->MAIN_INFO_SOCIETE_WEB,
+    'email'=>$conf->global->MAIN_INFO_SOCIETE_MAIL,
+    'logo'=>$conf->global->MAIN_INFO_SOCIETE_LOGO,
+    'iibb'=>$conf->global->MAIN_INFO_SIRET,
+    'cuit'=>$conf->global->MAIN_INFO_SIREN,
+    'download'=>'F',
+
+
+);
+
+ $test = new genComprobantePdf($db,$langs, $config  );
+
+ $test->dibujar(14082);
+ $test->sendMailComprobante();
+
+
 
 ?>
 

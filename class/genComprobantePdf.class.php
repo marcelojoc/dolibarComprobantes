@@ -4,6 +4,9 @@ require_once DOL_DOCUMENT_ROOT.'/main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once TCPDF_PATH.'tcpdf.php';
 require_once DOL_DOCUMENT_ROOT."/comprobantes/class/getComprobantes.class.php";
+require_once DOL_DOCUMENT_ROOT."/comprobantes/lib/phpmailer/PHPMailer.php";
+require_once DOL_DOCUMENT_ROOT."/comprobantes/lib/phpmailer/SMTP.php";
+require_once DOL_DOCUMENT_ROOT."/comprobantes/lib/phpmailer/Exception.php";
 
 // $conf->mycompany->dir_output.'/logos/';
 // var_dump($conf->mycompany->dir_output.'/logos/');
@@ -33,14 +36,12 @@ class genComprobantePdf
 
 
 
-
-
     public function dibujar($comp){
 
 		
-// var_dump(DOL_DOCUMENT_ROOT);
+		// var_dump(DOL_DOCUMENT_ROOT);
 
-// exit;
+		// exit;
 		$comprobante = new getComprobantes($this->db);
 		
 		$valorComprobante= $comprobante->setIdComprobante($comp);
@@ -198,6 +199,37 @@ class genComprobantePdf
 
     }
 
+
+	// Este metodo realiza el envio de correos desde SMTP a la casilla de correo del cliente
+	public function sendMailComprobante()
+	{
+
+		$mail = new PHPMailer\PHPMailer\PHPMailer();
+
+		//Luego tenemos que iniciar la validación por SMTP:
+		$mail->IsSMTP();
+		$mail->SMTPAuth = true;
+		$mail->Host = "mail.tmsgroup.com.ar"; // A RELLENAR. Aquí pondremos el SMTP a utilizar. Por ej. mail.midominio.com
+		$mail->Username = "marcelo.contreras@tmsgroup.com.ar"; // A RELLENAR. Email de la cuenta de correo. ej.info@midominio.com La cuenta de correo debe ser creada previamente. 
+		$mail->Password = "Marcelo.2017"; // A RELLENAR. Aqui pondremos la contraseña de la cuenta de correo
+		$mail->Port = 587; // Puerto de conexión al servidor de envio. 
+		$mail->From = "facturacion@tmsgroup.com.ar"; // A RELLENARDesde donde enviamos (Para mostrar). Puede ser el mismo que el email creado previamente.
+		$mail->FromName = "marcelo.contreras@tmsgroup.com.ar"; //A RELLENAR Nombre a mostrar del remitente. 
+		$mail->AddAddress("marcelo.contreras@tmsgroup.com.ar"); // Esta es la dirección a donde enviamos 
+		$mail->IsHTML(true); // El correo se envía como HTML 
+		$mail->Subject = '“Titulo”'; // Este es el titulo del email. 
+		$body = '“Hola mundo. Esta es la primer línea ”'; 
+		$body .= '“Aquí continuamos el mensaje”'; 
+		
+		$mail->Body = $body; // Mensaje a enviar. $exito = $mail->Send(); // Envía el correo.
+
+		if (!$mail->send()) {
+			echo "Mailer Error: ‘Hubo un problema. Contacta a un administrador.’ " . $mail->ErrorInfo;
+		} else {
+			echo "‘El correo fue enviado correctamente";
+		}
+
+	}
 
 
 
