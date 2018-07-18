@@ -20,13 +20,11 @@ class genComprobantePdf
 		$this->db = $db;
 		$this->pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 		
-
 		// set document information
 		$this->pdf->SetCreator(PDF_CREATOR);
 		$this->pdf->SetAuthor('Nicola Asuni');
 		$this->pdf->SetTitle('PDF COMPROBANTES');
-		$this->pdf->SetSubject('TCPDF Tutorial');
-		$this->pdf->SetKeywords('TCPDF, PDF, example, test, guide');
+		$this->pdf->SetSubject('TCPDF COMPROBANTES');
 		$this->langs = $langs;
 		$this->conf = $conf;
 
@@ -97,11 +95,11 @@ class genComprobantePdf
 				$textoMonto.= ' CON ';
 				$textoMonto.= strtoupper($this->langs->getLabelFromNumber($porciones[1] ,0|0));
 				$textoMonto.= ' CENT ';
-// $str = $langs->getLabelFromNumber($comprobante->monto,0|1);
-// $str = strtoupper($str);
+				// $str = $langs->getLabelFromNumber($comprobante->monto,0|1);
+				// $str = strtoupper($str);
 
-//  var_dump($textoMonto);
-// exit;
+				//  var_dump($textoMonto);
+				// exit;
 				$txt = '<p><b>Recibi de: </b>'.$comprobante->nombreCliente.' - '.$comprobante->direccionCliente.'</p><br>
 				
 				<p><b>Cantidad : </b>'.$textoMonto.'</p><br>
@@ -154,32 +152,24 @@ class genComprobantePdf
 			
 			 $this->pdf->writeHTML($tblDatos, true, false, false, false, '');
 	
-	// <img src="http://placehold.it/32x32" border="0" height="32" width="32" />
 			$htmlTotal = '
-			
-			
 			<H3 align="right"> Total : $ '.$comprobante->monto.' </H3>
 			<H3 align="right" color="red"> Pendiente :  $'.(intval($comprobante->total - $comprobante->montoTotalPagado)).'</H3>
-	
 			<hr>';
 	
 			$this->pdf->writeHTML($htmlTotal, true, false, false, false, '');
-	
-	
-	
-	
-	
-	
+
 			$this->pdf->lastPage();
 			
 			// ---------------------------------------------------------
+			// verifico si existe la carpeta
+			$carpeta = DOL_DATA_ROOT.'/comprobantes/'.$comprobante->referenciaComprobante;
+			if (!file_exists($carpeta)) {
+				mkdir($carpeta, 0777, true);
+			}
 			
 			//Close and output PDF document
-			$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', 'D');
-
-
-
-
+			$this->pdf->Output(DOL_DATA_ROOT.'/comprobantes/'.$comprobante->referenciaComprobante.'/'.$comprobante->referenciaComprobante.'.pdf', $this->conf['download']);
 
 
 

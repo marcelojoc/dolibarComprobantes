@@ -23,7 +23,7 @@ include_once ( '../class/genComprobantePdf.class.php');
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_ADDRESS);
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_ZIP);
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_TOWN);
- var_dump($conf->global->MAIN_INFO_SOCIETE_STATE);
+ var_dump(DOL_DATA_ROOT);
 
  var_dump($conf->global->MAIN_MONNAIE);
  var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO_MINI);
@@ -33,11 +33,14 @@ include_once ( '../class/genComprobantePdf.class.php');
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_TEL);
  var_dump($conf->global->MAIN_INFO_SIRET);
  var_dump($conf->global->MAIN_INFO_SIREN);
- var_dump(strtoupper($langs->getLabelFromNumber(72956.43 ,0|1)));
- var_dump(strtoupper($langs->getLabelFromNumber('85' ,0|0)));
 
 
-// echo json_encode($conf->global);
+
+//  var_dump(strtoupper($langs->getLabelFromNumber(72956.43 ,0|1)));
+//  var_dump(strtoupper($langs->getLabelFromNumber('85' ,0|0)));
+
+
+ echo json_encode($conf->global);
 
 ?>
 

@@ -37,6 +37,7 @@ $config = array(
     'logo'=>$conf->global->MAIN_INFO_SOCIETE_LOGO,
     'iibb'=>$conf->global->MAIN_INFO_SIRET,
     'cuit'=>$conf->global->MAIN_INFO_SIREN,
+    'download'=>'D',
 
 
 );
