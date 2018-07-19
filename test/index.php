@@ -33,6 +33,7 @@ include_once ( '../class/genComprobantePdf.class.php');
 //  var_dump($conf->global->MAIN_INFO_SOCIETE_TEL);
 //  var_dump($conf->global->MAIN_INFO_SIRET);
 //  var_dump($conf->global->MAIN_INFO_SIREN);
+//  var_dump($conf->global->FACTURE_SENDBYEMAIL_FOR_ALL_STATUS);
 
 
 
@@ -63,7 +64,7 @@ include_once ( '../class/genComprobantePdf.class.php');
 
  $test = new genComprobantePdf($db,$langs, $config  );
 
- $test->dibujar(14082);
+ $test->dibujar(224);
  $test->sendMailComprobante();
 
 

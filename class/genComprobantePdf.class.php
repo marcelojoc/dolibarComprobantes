@@ -225,27 +225,70 @@ class genComprobantePdf
 		$mail = new PHPMailer\PHPMailer\PHPMailer();
 
 		//Luego tenemos que iniciar la validación por SMTP:
-		$mail->IsSMTP();
-		$mail->SMTPAuth = true;
-		$mail->Host = "mail.tmsgroup.com.ar"; // A RELLENAR. Aquí pondremos el SMTP a utilizar. Por ej. mail.midominio.com
-		$mail->Username = "marcelo.contreras@tmsgroup.com.ar"; // A RELLENAR. Email de la cuenta de correo. ej.info@midominio.com La cuenta de correo debe ser creada previamente. 
-		$mail->Password = "Marcelo.2017"; // A RELLENAR. Aqui pondremos la contraseña de la cuenta de correo
-		$mail->Port = 587; // Puerto de conexión al servidor de envio. 
-		$mail->From = "facturacion@tmsgroup.com.ar"; // A RELLENARDesde donde enviamos (Para mostrar). Puede ser el mismo que el email creado previamente.
-		$mail->FromName = "marcelo.contreras@tmsgroup.com.ar"; //A RELLENAR Nombre a mostrar del remitente. 
-		$mail->AddAddress("marcelo.contreras@tmsgroup.com.ar"); // Esta es la dirección a donde enviamos 
-		$mail->IsHTML(true); // El correo se envía como HTML 
-		$mail->Subject = '“Titulo”'; // Este es el titulo del email. 
-		$body = '“Hola mundo. Esta es la primer línea ”'; 
-		$body .= '“Aquí continuamos el mensaje”'; 
+		// $mail->IsSMTP();
+		// $mail->SMTPAuth = true;
+		// $mail->Host = "mail.tmsgroup.com.ar"; // A RELLENAR. Aquí pondremos el SMTP a utilizar. Por ej. mail.midominio.com
+		// $mail->Username = "marcelo.contreras@tmsgroup.com.ar"; // A RELLENAR. Email de la cuenta de correo. ej.info@midominio.com La cuenta de correo debe ser creada previamente. 
+		// $mail->Password = "Marcelo.2017"; // A RELLENAR. Aqui pondremos la contraseña de la cuenta de correo
+		// $mail->Port = 587; // Puerto de conexión al servidor de envio. 
+		// $mail->From = "facturacion@tmsgroup.com.ar"; // A RELLENARDesde donde enviamos (Para mostrar). Puede ser el mismo que el email creado previamente.
+		// $mail->FromName = "marcelo.contreras@tmsgroup.com.ar"; //A RELLENAR Nombre a mostrar del remitente. 
+		// $mail->AddAddress("marcelo.contreras@tmsgroup.com.ar"); // Esta es la dirección a donde enviamos 
+		// $mail->IsHTML(true); // El correo se envía como HTML 
+		// $mail->Subject = '“Titulo”'; // Este es el titulo del email. 
+		// $body = '“Hola mundo. Esta es la primer línea ”'; 
+		// $body .= '“Aquí continuamos el mensaje”'; 
 		
-		$mail->Body = $body; // Mensaje a enviar. $exito = $mail->Send(); // Envía el correo.
+		// $mail->Body = $body; // Mensaje a enviar. $exito = $mail->Send(); // Envía el correo.
 
-		if (!$mail->send()) {
-			echo "Mailer Error: ‘Hubo un problema. Contacta a un administrador.’ " . $mail->ErrorInfo;
-		} else {
-			echo "‘El correo fue enviado correctamente";
+		// if (!$mail->send()) {
+		// 	echo "Mailer Error: ‘Hubo un problema. Contacta a un administrador.’ " . $mail->ErrorInfo;
+		// } else {
+		// 	echo "‘El correo fue enviado correctamente";
+		// }
+
+
+
+		$mail = new PHPMailer\PHPMailer\PHPMailer(true);                           // Passing `true` enables exceptions
+		try {
+			//Server settings
+			$mail->SMTPDebug = 2;                                 // Enable verbose debug output
+			$mail->isSMTP();                                      // Set mailer to use SMTP
+			$mail->Host = "mail.tmsgroup.com.ar";  // Specify main and backup SMTP servers
+			$mail->SMTPAuth = true;                               // Enable SMTP authentication
+			$mail->Username = "marcelo.contreras@tmsgroup.com.ar";               // SMTP username
+			$mail->Password = "Marcelo.2017";                          // SMTP password
+			$mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
+			$mail->Port = 587;                                    // TCP port to connect to
+		
+			//Recipients
+			$mail->setFrom('marcelo.contreras@tmsgroup.com.ar', 'Mailer');
+			$mail->addAddress('marcelo.contreras@tmsgroup.com.ar', 'Joe User');     // Add a recipient
+			// $mail->addAddress('ellen@example.com');               // Name is optional
+			// $mail->addReplyTo('info@example.com', 'Information');
+			$mail->addCC('marcelo.contreras@tmsgroup.com.ar');
+			$mail->addBCC('marcelo.contreras@tmsgroup.com.ar');
+		
+			//Attachments
+			// $mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
+			// $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
+		
+			//Content
+			$mail->isHTML(true);                                  // Set email format to HTML
+			$mail->Subject = 'Here is the subject';
+			$mail->Body    = 'This is the HTML message body <b>in bold!</b>';
+			$mail->AltBody = 'This is the body in plain text for non-HTML mail clients';
+		
+			$mail->send();
+			echo 'Message has been sent';
+		} catch (Exception $e) {
+			echo 'Message could not be sent. Mailer Error: ', $mail->ErrorInfo;
 		}
+
+
+
+
+
 
 	}
 
