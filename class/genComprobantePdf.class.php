@@ -162,16 +162,34 @@ class genComprobantePdf
 
 			$this->pdf->lastPage();
 			
-			// ---------------------------------------------------------
-			// verifico si existe la carpeta
-			$carpeta = DOL_DATA_ROOT.'/comprobantes/'.$comprobante->referenciaComprobante;
-			if (!file_exists($carpeta)) {
-				mkdir($carpeta, 0777, true);
-			}
-			
-			//Close and output PDF document
-			$this->pdf->Output(DOL_DATA_ROOT.'/comprobantes/'.$comprobante->referenciaComprobante.'/'.$comprobante->referenciaComprobante.'.pdf', $this->conf['download']);
+			if($this->conf['download']== 'D' ) {  // esta opcion es para que lo descargue
+				
+				//Close and output PDF document
+				$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', $this->conf['download']);
 
+			}else{
+
+				if($this->conf['download']== 'I' ) {    // esta es para que solo lo dibuje y lo muestre en el navegador
+
+					$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', $this->conf['download']);
+
+				}else{  // esta opcion es si quiero que o guarde en el server
+
+					// verifico si existe la carpeta
+					$carpeta = DOL_DATA_ROOT.'/comprobantes/'.$comprobante->referenciaComprobante;
+					if (!file_exists($carpeta)) {
+						mkdir($carpeta, 0777, true);
+					}
+					
+					//Close and output PDF document
+					$this->pdf->Output(DOL_DATA_ROOT.'/comprobantes/'.$comprobante->referenciaComprobante.'/'.$comprobante->referenciaComprobante.'.pdf', $this->conf['download']);
+
+				}	
+
+
+
+			}
+			// ---------------------------------------------------------
 
 
 		}else{  //si hay algun error imprime pdf de error
