@@ -256,11 +256,11 @@ class genComprobantePdf
 			$mail->isSMTP();                                      // Set mailer to use SMTP
 			$mail->Host = "mail.tmsgroup.com.ar";  // Specify main and backup SMTP servers
 			$mail->SMTPAuth = true;                               // Enable SMTP authentication
-			$mail->Username = "marcelo.contreras@tmsgroup.com.ar";               // SMTP username
-			$mail->Password = "Marcelo.2017";                          // SMTP password
+			$mail->Username = "info@tmsgroup.com.ar";               // SMTP username
+			$mail->Password = "A12345678";                          // SMTP password
 			$mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
 			$mail->Port = 587;                                    // TCP port to connect to
-		
+		// A12345678
 			//Recipients
 			$mail->setFrom('marcelo.contreras@tmsgroup.com.ar', 'Mailer');
 			$mail->addAddress('marcelo.contreras@tmsgroup.com.ar', 'Joe User');     // Add a recipient
