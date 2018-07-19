@@ -397,7 +397,7 @@ else
 		$formmail->withtopic=(isset($_POST['subject'])?$_POST['subject']:'comprobante 55555555');
 		$formmail->withtopicreadonly=0;
 		$formmail->withfile=2;
-		$formmail->withbody=(isset($_POST['message'])?$_POST['message']:($action == 'testhtml'?$langs->transnoentities("PredefinedMailTestHtml"):$langs->transnoentities("PredefinedMailTest")));
+		$formmail->withbody=(isset($_POST['message'])?$_POST['message']:($action == 'testhtml'?$langs->transnoentities("sendComprobante"):$langs->transnoentities("sendComprobante")));
 		$formmail->withbodyreadonly=0;
 		$formmail->withcancel=1;
 		$formmail->withdeliveryreceipt=1;
@@ -411,6 +411,9 @@ else
 		$formmail->param["mailid"]=0;
 		$formmail->param["returnurl"]=$_SERVER["PHP_SELF"];
 
+
+
+        // var_dump(  $formmail );
 		// Init list of files
 		if (GETPOST("mode")=='init')
 		{
