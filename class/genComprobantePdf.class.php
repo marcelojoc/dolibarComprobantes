@@ -4,9 +4,9 @@ require_once DOL_DOCUMENT_ROOT.'/main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once TCPDF_PATH.'tcpdf.php';
 require_once DOL_DOCUMENT_ROOT."/comprobantes/class/getComprobantes.class.php";
-require_once DOL_DOCUMENT_ROOT."/comprobantes/lib/phpmailer/PHPMailer.php";
-require_once DOL_DOCUMENT_ROOT."/comprobantes/lib/phpmailer/SMTP.php";
-require_once DOL_DOCUMENT_ROOT."/comprobantes/lib/phpmailer/Exception.php";
+require_once DOL_DOCUMENT_ROOT."/comprobantes/lib/PHPMailer/PHPMailer.php";
+require_once DOL_DOCUMENT_ROOT."/comprobantes/lib/PHPMailer/SMTP.php";
+require_once DOL_DOCUMENT_ROOT."/comprobantes/lib/PHPMailer/Exception.php";
 
 // $conf->mycompany->dir_output.'/logos/';
 // var_dump($conf->mycompany->dir_output.'/logos/');
