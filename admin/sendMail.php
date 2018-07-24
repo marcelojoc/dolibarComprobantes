@@ -57,9 +57,12 @@ $substitutionarrayfortest=array(
 '__ADDRESS__'=> 'RecipientAddress',
 '__ZIP__'=> 'RecipientZip',
 '__TOWN_'=> 'RecipientTown',
-'__COUNTRY__'=> 'RecipientCountry'
+'__COUNTRY__'=> 'RecipientCountry',
+
 );
 complete_substitutions_array($substitutionarrayfortest, $langs);
+
+
 
 
 
@@ -92,7 +95,7 @@ complete_substitutions_array($substitutionarrayfortest, $langs);
 // Actions to send emails
 $id=0;
 $actiontypecode='';     // Not an event for agenda
-$trigger_name='';       // Disable triggers
+$trigger_name='$trackid';       // Disable triggers
 $paramname='id';
 $mode='emailfortest';
 $trackid=(($action == 'testhtml')?"testhtml":"test");
@@ -101,6 +104,9 @@ include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
 if ($action == 'presend' && GETPOST('trackid') == 'test')       $action='test';
 if ($action == 'presend' && GETPOST('trackid') == 'testhtml')   $action='testhtml';
 
+var_dump($_POST);
+var_dump($trackid);
+
 
 
 
@@ -108,38 +114,20 @@ if ($action == 'presend' && GETPOST('trackid') == 'testhtml')   $action='testhtm
  * View
  */
 
-$linuxlike=1;
-if (preg_match('/^win/i',PHP_OS)) $linuxlike=0;
-if (preg_match('/^mac/i',PHP_OS)) $linuxlike=0;
-
-if (empty($conf->global->MAIN_MAIL_SENDMODE)) $conf->global->MAIN_MAIL_SENDMODE='mail';
-$port=! empty($conf->global->MAIN_MAIL_SMTP_PORT)?$conf->global->MAIN_MAIL_SMTP_PORT:ini_get('smtp_port');
-if (! $port) $port=25;
-$server=! empty($conf->global->MAIN_MAIL_SMTP_SERVER)?$conf->global->MAIN_MAIL_SMTP_SERVER:ini_get('SMTP');
-if (! $server) $server='127.0.0.1';
+// $linuxlike=1;
+// if (preg_match('/^win/i',PHP_OS)) $linuxlike=0;
+// if (preg_match('/^mac/i',PHP_OS)) $linuxlike=0;
 
 
-$wikihelp='EN:Setup_EMails|FR:Paramétrage_EMails|ES:Configuración_EMails';
-llxHeader('',$langs->trans("Setup"),$wikihelp);
 
-print load_fiche_titre($langs->trans("EMailsSetup"),'','title_setup');
+$wikihelp='EN:Setup_EMails|FR:Paramétrage_EMails|ES:Formulario envio de comprobantes';
+llxHeader('','Formulario envio de comprobantes',$wikihelp);
+
+
 
 $head = email_admin_prepare_head();
 
-// List of sending methods
-$listofmethods=array();
-$listofmethods['mail']='PHP mail function';
-//$listofmethods['simplemail']='Simplemail class';
-$listofmethods['smtps']='SMTP/SMTPS socket library';
-$listofmethods['swiftmailer']='Swift Mailer socket library';
-
-
-if ($action == 'edit')
-{
-	
-}
-else
-{
+//region final
 	// dol_fiche_head($head, 'common', '', -1);
 
 	// print $langs->trans("EMailsDesc")."<br>\n";
@@ -365,16 +353,11 @@ else
 
 	// print '</div>';
 
+//endregion final
 
 
-
-
-
-	// Show email send test form
-	if ($action == 'test' || $action == 'testhtml')
-	{
 		// print '<div id="formmailbeforetitle" name="formmailbeforetitle"></div>';
-		print load_fiche_titre($action == 'testhtml'?$langs->trans("DoTestSendHTML"):$langs->trans("DoTestSend"));
+		print load_fiche_titre('Formulario de envio de comprobantes','','envio de comprobantes');
 
 		// dol_fiche_head('');
 
@@ -387,21 +370,27 @@ else
 		$formmail->fromid=$user->id;
 		$formmail->fromalsorobot=1;
 		$formmail->fromtype=(GETPOST('fromtype')?GETPOST('fromtype'):(!empty($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE)?$conf->global->MAIN_MAIL_DEFAULT_FROMTYPE:'user'));
+
 		$formmail->withfromreadonly=1;
 		$formmail->withsubstit=0;
 		$formmail->withfrom=1;
-		$formmail->witherrorsto=1;
-		$formmail->withto=(! empty($_POST['sendto'])?$_POST['sendto']:($user->email?$user->email:1));
-		$formmail->withtocc=(! empty($_POST['sendtocc'])?$_POST['sendtocc']:1);       // ! empty to keep field if empty
-		$formmail->withtoccc=(! empty($_POST['sendtoccc'])?$_POST['sendtoccc']:1);    // ! empty to keep field if empty
+		// $formmail->witherrorsto=1;
+		$formmail->withto= 'marcelo.contreras@tmsgroup';     // ! empty to keep field if empty
+		$formmail->withtoccc=(! empty($_POST['sendtoccc'])?$_POST['sendtoccc']:0);    // ! empty to keep field if empty
 		$formmail->withtopic=(isset($_POST['subject'])?$_POST['subject']:'comprobante 55555555');
 		$formmail->withtopicreadonly=0;
 		$formmail->withfile=2;
-		$formmail->withbody=(isset($_POST['message'])?$_POST['message']:($action == 'testhtml'?$langs->transnoentities("sendComprobante"):$langs->transnoentities("sendComprobante")));
+		$formmail->withbody='__(Hello)__,<br><br>
+
+		Estimado __MEMBER_FIRSTNAME__ <br><br>
+		
+			Envio comprobante de pago para la factura<br><br>
+			
+		__(Sincerely)__<br><br>'.$conf->global->MAIN_INFO_SOCIETE_NOM;
 		$formmail->withbodyreadonly=0;
 		$formmail->withcancel=1;
 		$formmail->withdeliveryreceipt=1;
-		$formmail->withfckeditor=($action == 'testhtml'?1:0);
+
 		$formmail->ckeditortoolbar='dolibarr_mailings';
 		// Tableau des substitutions
 		$formmail->substit=$substitutionarrayfortest;
@@ -410,8 +399,17 @@ else
 		$formmail->param["models"]="body";
 		$formmail->param["mailid"]=0;
 		$formmail->param["returnurl"]=$_SERVER["PHP_SELF"];
+		$formmail->param['fileinit'] = 'C:/wamp/www/dolibar_local/documents/facture/FA1807-13811/FA1807-13811.pdf';
 
 
+
+		$formmail->param['action'] = 'send';
+		// $formmail->param['models'] = 'facture_send';
+		$formmail->param['models_id']=GETPOST('modelmailselected','int');
+		$formmail->param['id'] = '14150';
+		$formmail->param['returnurl'] = $_SERVER["PHP_SELF"] . '?id=' . '14150';
+		$file= 'C:\wamp\www\dolibar_local\documents\comprobantes\PAY1807-14073';
+		$formmail->param['fileinit'] = array($file);
 
         // var_dump(  $formmail );
 		// Init list of files
@@ -420,12 +418,15 @@ else
 			$formmail->clear_attached_files();
 		}
 
-		print $formmail->get_form('addfile','removefile');
+		$formmail->clear_attached_files();
 
+		$formmail->add_attached_files($file, basename($file), dol_mimetype($file));
+		print $formmail->get_form();
+
+		//  var_dump(  $formmail );
 		dol_fiche_end();
-	}
-}
-
+	
+		
 
 llxFooter();
 
