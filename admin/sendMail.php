@@ -26,360 +26,69 @@
 require '../../main.inc.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT."/comprobantes/class/getComprobantes.class.php";
 
-$langs->load("companies");
-$langs->load("products");
-$langs->load("admin");
 $langs->load("mails");
 $langs->load("other");
 $langs->load("errors");
 
 $action=GETPOST('action','alpha');
+$comp=GETPOST('id','alpha');
 
 if (! $user->admin) accessforbidden();
 
-$usersignature=$user->signature;
-// For action = test or send, we ensure that content is not html, even for signature, because this we want a test with NO html.
-if ($action == 'test' || $action == 'send')
-{
-	$usersignature=dol_string_nohtmltag($usersignature);
-}
 
-$substitutionarrayfortest=array(
-'__DOL_MAIN_URL_ROOT__'=>DOL_MAIN_URL_ROOT,
-'__ID__' => 'RecipientIdRecord',
-//'__EMAIL__' => 'RecipientEMail',				// Done into actions_sendmails
-'__CHECK_READ__' => (is_object($object) && is_object($object->thirdparty))?'<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.$object->thirdparty->tag.'&securitykey='.urlencode($conf->global->MAILING_EMAIL_UNSUBSCRIBE_KEY).'" width="1" height="1" style="width:1px;height:1px" border="0"/>':'',
-'__USER_SIGNATURE__' => (($user->signature && empty($conf->global->MAIN_MAIL_DO_NOT_USE_SIGN))?$usersignature:''),		// Done into actions_sendmails
-'__LOGIN__' => 'RecipientLogin',
-'__LASTNAME__' => 'RecipientLastname',
-'__FIRSTNAME__' => 'RecipientFirstname',
-'__ADDRESS__'=> 'RecipientAddress',
-'__ZIP__'=> 'RecipientZip',
-'__TOWN_'=> 'RecipientTown',
-'__COUNTRY__'=> 'RecipientCountry',
+	// var_dump($comp);
 
-);
-complete_substitutions_array($substitutionarrayfortest, $langs);
+	if($comp != ''){    //  si envio datos de id de comprobante
 
+		$comprobante = new getComprobantes($db);
+				
+		$valorComprobante= $comprobante->setIdComprobante($comp);
 
 
+		if($valorComprobante['response'] ){    //  si el resultado de setear el comprobante es favorable puedo desplegar el formulario
 
+			$comprobante->dataFactura(); // busco todos los datos del comprobante;
 
-/*
- * Actions
- */
+				$id=0;
+				$actiontypecode='';     // Not an event for agenda
+				$trigger_name='$trackid';       // Disable triggers
+				$paramname='id';
+				$mode='emailfortest';
+				$trackid='comprobante';
+				include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
 
-// if ($action == 'update' && empty($_POST["cancel"]))
-// {
-// 	dolibarr_set_const($db, "MAIN_DISABLE_ALL_MAILS",     GETPOST("MAIN_DISABLE_ALL_MAILS"),'chaine',0,'',$conf->entity);
-// 	// Send mode parameters
-// 	dolibarr_set_const($db, "MAIN_MAIL_SENDMODE",         GETPOST("MAIN_MAIL_SENDMODE"),'chaine',0,'',$conf->entity);
-// 	dolibarr_set_const($db, "MAIN_MAIL_SMTP_PORT",        GETPOST("MAIN_MAIL_SMTP_PORT"),'chaine',0,'',$conf->entity);
-// 	dolibarr_set_const($db, "MAIN_MAIL_SMTP_SERVER",      GETPOST("MAIN_MAIL_SMTP_SERVER"),'chaine',0,'',$conf->entity);
-// 	dolibarr_set_const($db, "MAIN_MAIL_SMTPS_ID",         GETPOST("MAIN_MAIL_SMTPS_ID"), 'chaine',0,'',$conf->entity);
-// 	dolibarr_set_const($db, "MAIN_MAIL_SMTPS_PW",         GETPOST("MAIN_MAIL_SMTPS_PW"), 'chaine',0,'',$conf->entity);
-// 	dolibarr_set_const($db, "MAIN_MAIL_EMAIL_TLS",        GETPOST("MAIN_MAIL_EMAIL_TLS"),'chaine',0,'',$conf->entity);
-// 	dolibarr_set_const($db, "MAIN_MAIL_EMAIL_STARTTLS",   GETPOST("MAIN_MAIL_EMAIL_STARTTLS"),'chaine',0,'',$conf->entity);
-// 	// Content parameters
-// 	dolibarr_set_const($db, "MAIN_MAIL_EMAIL_FROM",       GETPOST("MAIN_MAIL_EMAIL_FROM"), 'chaine',0,'',$conf->entity);
-// 	dolibarr_set_const($db, "MAIN_MAIL_ERRORS_TO",		  GETPOST("MAIN_MAIL_ERRORS_TO"),  'chaine',0,'',$conf->entity);
-// 	dolibarr_set_const($db, "MAIN_MAIL_AUTOCOPY_TO",      GETPOST("MAIN_MAIL_AUTOCOPY_TO"),'chaine',0,'',$conf->entity);
-// 	dolibarr_set_const($db, 'MAIN_MAIL_DEFAULT_FROMTYPE', GETPOST('MAIN_MAIL_DEFAULT_FROMTYPE'),'chaine',0,'',$conf->entity);
+				/*
+				* View
+				*/
 
-// 	header("Location: ".$_SERVER["PHP_SELF"]."?mainmenu=home&leftmenu=setup");
-// 	exit;
-// }
 
+				$wikihelp='EN:Setup_EMails|FR:Paramétrage_EMails|ES:Formulario envio de comprobantes';
+				llxHeader('','Formulario envio de comprobantes',$wikihelp);
+				$head = email_admin_prepare_head();
 
-// Actions to send emails
-$id=0;
-$actiontypecode='';     // Not an event for agenda
-$trigger_name='$trackid';       // Disable triggers
-$paramname='id';
-$mode='emailfortest';
-$trackid=(($action == 'testhtml')?"testhtml":"test");
-include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
+				print load_fiche_titre('Formulario de envio de comprobantes','','');
 
-if ($action == 'presend' && GETPOST('trackid') == 'test')       $action='test';
-if ($action == 'presend' && GETPOST('trackid') == 'testhtml')   $action='testhtml';
+				// Cree l'objet formulaire mail
+				include_once DOL_DOCUMENT_ROOT.'/core/class/html.formmail.class.php';
+				$formmail = new FormMail($db);
+				$formmail->trackid= $trackid;
+				$formmail->fromname = $conf->global->MAIN_MAIL_EMAIL_FROM;
+				$formmail->frommail = $conf->global->MAIN_MAIL_EMAIL_FROM;
+				$formmail->fromid= $user->id;
+				$formmail->fromalsorobot=1;
+				$formmail->fromtype=(GETPOST('fromtype')?GETPOST('fromtype'):(!empty($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE)?$conf->global->MAIN_MAIL_DEFAULT_FROMTYPE:'user'));
 
-var_dump($_POST);
-var_dump($trackid);
-
-
-
-
-/*
- * View
- */
-
-// $linuxlike=1;
-// if (preg_match('/^win/i',PHP_OS)) $linuxlike=0;
-// if (preg_match('/^mac/i',PHP_OS)) $linuxlike=0;
-
-
-
-$wikihelp='EN:Setup_EMails|FR:Paramétrage_EMails|ES:Formulario envio de comprobantes';
-llxHeader('','Formulario envio de comprobantes',$wikihelp);
-
-
-
-$head = email_admin_prepare_head();
-
-//region final
-	// dol_fiche_head($head, 'common', '', -1);
-
-	// print $langs->trans("EMailsDesc")."<br>\n";
-	// print "<br>\n";
-
-
-	// $var=true;
-
-	// print '<table class="noborder" width="100%">';
-	// print '<tr class="liste_titre"><td class="titlefieldmiddle">'.$langs->trans("Parameter").'</td><td>'.$langs->trans("Value").'</td></tr>';
-
-	// Disable
-
-	// print '<tr class="oddeven"><td>'.$langs->trans("MAIN_DISABLE_ALL_MAILS").'</td><td>'.yn($conf->global->MAIN_DISABLE_ALL_MAILS).'</td></tr>';
-
-	// Separator
-
-	// print '<tr class="oddeven"><td colspan="2">&nbsp;</td></tr>';
-
-	// Method
-
-	// print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_SENDMODE").'</td><td>';
-	// $text=$listofmethods[$conf->global->MAIN_MAIL_SENDMODE];
-	// if (empty($text)) $text=$langs->trans("Undefined").img_warning();
-	// print $text;
-	// print '</td></tr>';
-
-	// Host server
-
-	// if ($linuxlike && (isset($conf->global->MAIN_MAIL_SENDMODE) && $conf->global->MAIN_MAIL_SENDMODE == 'mail'))
-	// {
-	// 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_SMTP_SERVER_NotAvailableOnLinuxLike").'</td><td>'.$langs->trans("SeeLocalSendMailSetup").'</td></tr>';
-	// }
-	// else
-	// {
-	// 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_SMTP_SERVER",ini_get('SMTP')?ini_get('SMTP'):$langs->transnoentities("Undefined")).'</td><td>'.(! empty($conf->global->MAIN_MAIL_SMTP_SERVER)?$conf->global->MAIN_MAIL_SMTP_SERVER:'').'</td></tr>';
-	// }
-
-	// Port
-
-	// if ($linuxlike && (isset($conf->global->MAIN_MAIL_SENDMODE) && $conf->global->MAIN_MAIL_SENDMODE == 'mail'))
-	// {
-	// 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_SMTP_PORT_NotAvailableOnLinuxLike").'</td><td>'.$langs->trans("SeeLocalSendMailSetup").'</td></tr>';
-	// }
-	// else
-	// {
-	// 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_SMTP_PORT",ini_get('smtp_port')?ini_get('smtp_port'):$langs->transnoentities("Undefined")).'</td><td>'.(! empty($conf->global->MAIN_MAIL_SMTP_PORT)?$conf->global->MAIN_MAIL_SMTP_PORT:'').'</td></tr>';
-	// }
-
-	// SMTPS ID
-
-	// if (isset($conf->global->MAIN_MAIL_SENDMODE) && in_array($conf->global->MAIN_MAIL_SENDMODE, array('smtps', 'swiftmailer')))
-	// {
-	// 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_SMTPS_ID").'</td><td>'.$conf->global->MAIN_MAIL_SMTPS_ID.'</td></tr>';
-	// }
-
-	// SMTPS PW
-
-	// if (isset($conf->global->MAIN_MAIL_SENDMODE) && in_array($conf->global->MAIN_MAIL_SENDMODE, array('smtps', 'swiftmailer')))
-	// {
-	// 	print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_SMTPS_PW").'</td><td>'.preg_replace('/./','*',$conf->global->MAIN_MAIL_SMTPS_PW).'</td></tr>';
-	// }
-
-	// TLS
-
-	// print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_EMAIL_TLS").'</td><td>';
-	// if (isset($conf->global->MAIN_MAIL_SENDMODE) && in_array($conf->global->MAIN_MAIL_SENDMODE, array('smtps', 'swiftmailer')))
-	// {
-	// 	if (function_exists('openssl_open'))
-	// 	{
-	// 		print yn($conf->global->MAIN_MAIL_EMAIL_TLS);
-	// 	}
-	// 	else print yn(0).' ('.$langs->trans("YourPHPDoesNotHaveSSLSupport").')';
-	// }
-	// else print yn(0).' ('.$langs->trans("NotSupported").')';
-	// print '</td></tr>';
-
-	// STARTTLS
-
-	// print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_EMAIL_STARTTLS").'</td><td>';
-	// if (isset($conf->global->MAIN_MAIL_SENDMODE) && in_array($conf->global->MAIN_MAIL_SENDMODE, array('smtps', 'swiftmailer')))
-	// {
-	// 	if (function_exists('openssl_open'))
-	// 	{
-	// 		print yn($conf->global->MAIN_MAIL_EMAIL_STARTTLS);
-	// 	}
-	// 	else print yn(0).' ('.$langs->trans("YourPHPDoesNotHaveSSLSupport").')';
-	// }
-	// else print yn(0).' ('.$langs->trans("NotSupported").')';
-	// print '</td></tr>';
-
-	// Separator
-
-	// print '<tr class="oddeven"><td colspan="2">&nbsp;</td></tr>';
-
-	// From
-
-	// print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_EMAIL_FROM",ini_get('sendmail_from')?ini_get('sendmail_from'):$langs->transnoentities("Undefined")).'</td>';
-	// print '<td>'.$conf->global->MAIN_MAIL_EMAIL_FROM;
-	// if (! empty($conf->global->MAIN_MAIL_EMAIL_FROM) && ! isValidEmail($conf->global->MAIN_MAIL_EMAIL_FROM)) print img_warning($langs->trans("ErrorBadEMail"));
-	// print '</td></tr>';
-
-	// Default from type
-	// $liste = array();
-	// $liste['user'] = $langs->trans('UserEmail');
-	// $liste['company'] = $langs->trans('CompanyEmail').' ('.(empty($conf->global->MAIN_INFO_SOCIETE_MAIL)?$langs->trans("NotDefined"):$conf->global->MAIN_INFO_SOCIETE_MAIL).')';
-	// $sql='SELECT rowid, label, email FROM '.MAIN_DB_PREFIX.'c_email_senderprofile WHERE active = 1';
-	// $resql = $db->query($sql);
-	// if ($resql)
-	// {
-	// 	$num = $db->num_rows($resql);
-	// 	$i=0;
-	// 	while($i < $num)
-	// 	{
-	// 		$obj = $db->fetch_object($resql);
-	// 		if ($obj)
-	// 		{
-	// 			$liste['senderprofile_'.$obj->rowid] = $obj->label.' <'.$obj->email.'>';
-	// 		}
-	// 		$i++;
-	// 	}
-	// }
-	// else dol_print_error($db);
-
-	// print '<tr class="oddeven"><td>'.$langs->trans('MAIN_MAIL_DEFAULT_FROMTYPE').'</td>';
-	// print '<td>';
-	// if ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'robot')
-	// {
-	// 	print $langs->trans('RobotEmail');
-	// }
-	// else if ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'user')
-	// {
-	// 	print $langs->trans('UserEmail');
-	// }
-	// else if ($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE === 'company')
-	// {
-	// 	print $langs->trans('CompanyEmail').' '.dol_escape_htmltag('<'.$mysoc->email.'>');
-	// }
-	// else {
-	// 	$id = preg_replace('/senderprofile_/', '', $conf->global->MAIN_MAIL_DEFAULT_FROMTYPE);
-	// 	if ($id > 0)
-	// 	{
-	// 		include_once DOL_DOCUMENT_ROOT.'/core/class/emailsenderprofile.class.php';
-	// 		$emailsenderprofile = new EmailSenderProfile($db);
-	// 		$emailsenderprofile->fetch($id);
-	// 		print $emailsenderprofile->label.' '.dol_escape_htmltag('<'.$emailsenderprofile->email.'>');
-	// 	}
-	// }
-	// print '</td></tr>';
-
-	// Separator
-
-	// print '<tr class="oddeven"><td colspan="2">&nbsp;</td></tr>';
-
-	// Errors To
-
-	// print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_ERRORS_TO").'</td>';
-	// print '<td>'.$conf->global->MAIN_MAIL_ERRORS_TO;
-	// if (! empty($conf->global->MAIN_MAIL_ERRORS_TO) && ! isValidEmail($conf->global->MAIN_MAIL_ERRORS_TO)) print img_warning($langs->trans("ErrorBadEMail"));
-	// print '</td></tr>';
-
-	// Autocopy to
-
-	// print '<tr class="oddeven"><td>'.$langs->trans("MAIN_MAIL_AUTOCOPY_TO").'</td>';
-	// print '<td>';
-	// if (! empty($conf->global->MAIN_MAIL_AUTOCOPY_TO))
-	// {
-	// 	print $conf->global->MAIN_MAIL_AUTOCOPY_TO;
-	// 	if (! isValidEmail($conf->global->MAIN_MAIL_AUTOCOPY_TO)) print img_warning($langs->trans("ErrorBadEMail"));
-	// }
-	// else
-	// {
-	// 	print '&nbsp;';
-	// }
-	// print '</td></tr>';
-
-	// print '</table>';
-
-	// dol_fiche_end();
-
-
-	// if ($conf->global->MAIN_MAIL_SENDMODE == 'mail' && empty($conf->global->MAIN_FIX_FOR_BUGGED_MTA))
-	// {
-	// 	print '<br>';
-	// 	/*
-	//     // Warning 1
-    // 	if ($linuxlike)
-    // 	{
-    // 		$sendmailoption=ini_get('mail.force_extra_parameters');
-    // 		if (empty($sendmailoption) || ! preg_match('/ba/',$sendmailoption))
-    // 		{
-    // 			print info_admin($langs->trans("SendmailOptionNotComplete"));
-    // 		}
-    // 	}*/
-	// 	// Warning 2
-   	// 	print info_admin($langs->trans("SendmailOptionMayHurtBuggedMTA"));
-	// }
-
-
-	// Boutons actions
-	// print '<div class="tabsAction">';
-
-	// print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?action=edit">'.$langs->trans("Modify").'</a>';
-
-	// if ($conf->global->MAIN_MAIL_SENDMODE != 'mail' || ! $linuxlike)
-	// {
-	// 	if (function_exists('fsockopen') && $port && $server)
-	// 	{
-	// 		print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?action=testconnect">'.$langs->trans("DoTestServerAvailability").'</a>';
-	// 	}
-	// }
-	// else
-	// {
-	// 	print '<a class="butActionRefused" href="#" title="'.$langs->trans("FeatureNotAvailableOnLinux").'">'.$langs->trans("DoTestServerAvailability").'</a>';
-	// }
-
-	// print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?action=test&amp;mode=init">'.$langs->trans("DoTestSend").'</a>';
-
-	// if (! empty($conf->fckeditor->enabled))
-	// {
-	// 	print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?action=testhtml&amp;mode=init">'.$langs->trans("DoTestSendHTML").'</a>';
-	// }
-
-	// print '</div>';
-
-//endregion final
-
-
-		// print '<div id="formmailbeforetitle" name="formmailbeforetitle"></div>';
-		print load_fiche_titre('Formulario de envio de comprobantes','','envio de comprobantes');
-
-		// dol_fiche_head('');
-
-		// Cree l'objet formulaire mail
-		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formmail.class.php';
-		$formmail = new FormMail($db);
-		$formmail->trackid=(($action == 'testhtml')?"testhtml":"test");
-		$formmail->fromname = (isset($_POST['fromname'])?$_POST['fromname']:$conf->global->MAIN_MAIL_EMAIL_FROM);
-		$formmail->frommail = (isset($_POST['frommail'])?$_POST['frommail']:$conf->global->MAIN_MAIL_EMAIL_FROM);
-		$formmail->fromid=$user->id;
-		$formmail->fromalsorobot=1;
-		$formmail->fromtype=(GETPOST('fromtype')?GETPOST('fromtype'):(!empty($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE)?$conf->global->MAIN_MAIL_DEFAULT_FROMTYPE:'user'));
-
-		$formmail->withfromreadonly=1;
-		$formmail->withsubstit=0;
-		$formmail->withfrom=1;
-		// $formmail->witherrorsto=1;
-		$formmail->withto= 'marcelo.contreras@tmsgroup';     // ! empty to keep field if empty
-		$formmail->withtoccc=(! empty($_POST['sendtoccc'])?$_POST['sendtoccc']:0);    // ! empty to keep field if empty
-		$formmail->withtopic=(isset($_POST['subject'])?$_POST['subject']:'comprobante 55555555');
-		$formmail->withtopicreadonly=0;
-		$formmail->withfile=2;
+				$formmail->withfromreadonly=1;
+				$formmail->withsubstit=0;
+				$formmail->withfrom=1;
+				// $formmail->witherrorsto=1;
+				$formmail->withto= $comprobante->emailCliente;     // ! empty to keep field if empty
+				$formmail->withtoccc=(! empty($_POST['sendtoccc'])?$_POST['sendtoccc']:0);    // ! empty to keep field if empty
+				$formmail->withtopic=(isset($_POST['subject'])?$_POST['subject']:'comprobante 55555555');
+				$formmail->withtopicreadonly=0;
+				$formmail->withfile=2;
 		$formmail->withbody='__(Hello)__,<br><br>
 
 		Estimado __MEMBER_FIRSTNAME__ <br><br>
@@ -387,13 +96,15 @@ $head = email_admin_prepare_head();
 			Envio comprobante de pago para la factura<br><br>
 			
 		__(Sincerely)__<br><br>'.$conf->global->MAIN_INFO_SOCIETE_NOM;
+
+
+
 		$formmail->withbodyreadonly=0;
 		$formmail->withcancel=1;
 		$formmail->withdeliveryreceipt=1;
-
 		$formmail->ckeditortoolbar='dolibarr_mailings';
 		// Tableau des substitutions
-		$formmail->substit=$substitutionarrayfortest;
+		
 		// Tableau des parametres complementaires du post
 		$formmail->param["action"]="send";
 		$formmail->param["models"]="body";
@@ -407,11 +118,11 @@ $head = email_admin_prepare_head();
 		// $formmail->param['models'] = 'facture_send';
 		$formmail->param['models_id']=GETPOST('modelmailselected','int');
 		$formmail->param['id'] = '14150';
-		$formmail->param['returnurl'] = $_SERVER["PHP_SELF"] . '?id=' . '14150';
+		$formmail->param['returnurl'] = DOL_MAIN_URL_ROOT . '/compta/paiement/card.php?id=' . '14150';
 		$file= 'C:\wamp\www\dolibar_local\documents\comprobantes\PAY1807-14073';
-		$formmail->param['fileinit'] = array($file);
+		$formmail->param['fileinit'] = array($file,);
 
-        // var_dump(  $formmail );
+        
 		// Init list of files
 		if (GETPOST("mode")=='init')
 		{
@@ -420,11 +131,43 @@ $head = email_admin_prepare_head();
 
 		$formmail->clear_attached_files();
 
-		$formmail->add_attached_files($file, basename($file), dol_mimetype($file));
+
+		$formmail->add_attached_files($file, basename($file), 'application/pdf');
 		print $formmail->get_form();
 
-		//  var_dump(  $formmail );
+		
 		dol_fiche_end();
+
+
+		}else{
+
+
+			// el numero de id del comprobante no existe 
+
+
+		}
+
+
+
+
+	}else{  // Si no mando nada
+
+
+
+		
+
+
+	}
+
+
+
+
+
+
+
+
+
+	
 	
 		
 

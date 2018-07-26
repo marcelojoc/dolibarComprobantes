@@ -39,6 +39,7 @@ class getComprobantes // extends CommonObject
     public $idCliente;  // id del cleinte 
     public $nombreCliente;  // id del cleinte 
     public $direccionCliente;  // direccion Cliente
+    public $emailCliente;  // direccion de correo electronico del cliente
     public $total;  /// total de la factura  total_ttc
     public $monto;  // este valor es el monto pagado puede ser inferior al valor total  en ese caso quedaria adeudando
     public $montoTotalPagado;  // este valor es la sumatoria de los pagos para una factura
@@ -174,6 +175,7 @@ class getComprobantes // extends CommonObject
         $societe->fetch($this->idCliente);
         $this->nombreCliente = $societe->nom;  
         $this->direccionCliente= $societe->address;  
+        $this->emailCliente= ($societe->email == null) ? "Sin correo definido" : $societe->email; 
 
 
     }
