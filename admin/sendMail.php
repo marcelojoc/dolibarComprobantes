@@ -38,7 +38,7 @@ $comp=GETPOST('comp','alpha');
 if (! $user->admin) accessforbidden();
 
 
-	// var_dump(DOL_DOCUMENT_ROOT);
+	// var_dump($_POST);
 
 	if($comp != ''){    //  si envio datos de id de comprobante
 
@@ -141,22 +141,34 @@ if (! $user->admin) accessforbidden();
 
 
 
-	}else{  // Si no mando nada
+	}else{  // Si no mando nada o  ya envio el mensaje
 
 
-		$wikihelp='EN:Setup_EMails|FR:Paramétrage_EMails|ES:Formulario envio de comprobantes';
-		llxHeader('','Formulario envio de comprobantes',$wikihelp);
-		$head = email_admin_prepare_head();
+		if($_POST['action']== 'send'){  // si ya envio el mensaje
 
-		print load_fiche_titre('Formulario de envio de comprobantes','','');
+			$wikihelp='EN:Setup_EMails|FR:Paramétrage_EMails|ES:Formulario envio de comprobantes';
+			llxHeader('','Formulario envio de comprobantes',$wikihelp);
+			$head = email_admin_prepare_head();
+	
+			print load_fiche_titre('Formulario de envio de comprobantes','','');
+	
+			print '<b>COMPROBANTE  ENVIADO</b>';
+			
+			// var_dump($conf->global->MAIN_MAIL_EMAIL_FROM);
 
-		print '<b>NO HAY DATOS ENVIADOS PARA PROCESAR</b>';
-		
-		// var_dump($conf->global->MAIN_MAIL_EMAIL_FROM);
+		}else{
 
+			$wikihelp='EN:Setup_EMails|FR:Paramétrage_EMails|ES:Formulario envio de comprobantes';
+			llxHeader('','Formulario envio de comprobantes',$wikihelp);
+			$head = email_admin_prepare_head();
+	
+			print load_fiche_titre('Formulario de envio de comprobantes','','');
+	
+			print '<b>NO HAY DATOS ENVIADOS PARA PROCESAR</b>';
+			
+			// var_dump($conf->global->MAIN_MAIL_EMAIL_FROM);
 
-
-
+		}
 
 	}
 
