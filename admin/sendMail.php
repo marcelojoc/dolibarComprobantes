@@ -38,11 +38,22 @@ $comp=GETPOST('comp','alpha');
 if (! $user->admin) accessforbidden();
 
 
-	// var_dump($_POST);
+ var_dump($_POST);
 
 	if($comp != ''){    //  si envio datos de id de comprobante
 
 		$comprobante = new getComprobantes($db);
+
+		//modelmailselected  es el parametro de la plantilla
+		/**
+		 * hay que hacer un metodo que busque en la tabla 
+		 * llx_c_email_templates con el id de este numero
+		 * traer la plantilla y el asunto 
+		 * Luego un metodo para reemplazar cada dato con el del comprobante
+		 * 
+		 * en la pagina de prueb de correos hay un metodo que se puede modificar para este proposito
+		 * 
+		 */
 				
 		$valorComprobante= $comprobante->setIdComprobante($comp);
 
@@ -61,7 +72,7 @@ if (! $user->admin) accessforbidden();
 			/*
 			* View
 			*/
-			$wikihelp='EN:Setup_EMails|FR:Paramétrage_EMails|ES:Formulario envio de comprobantes';
+			$wikihelp='EN:Setup_EMails|ES:Formulario envio de comprobantes';
 			llxHeader('','Formulario envio de comprobantes',$wikihelp);
 			$head = email_admin_prepare_head();
 
