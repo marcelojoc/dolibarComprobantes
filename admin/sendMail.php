@@ -34,8 +34,9 @@ $langs->load("errors");
 
 $action=GETPOST('action','alpha');
 $comp=GETPOST('comp','alpha');
+$idSelect=GETPOST('modelmailselected','alpha');
 
-if (! $user->admin) accessforbidden();
+if (! $user->admin) accessforbidden(); // check permisos
 
 
  var_dump($_POST);
@@ -55,10 +56,17 @@ if (! $user->admin) accessforbidden();
 		 * 
 		 */
 				
-		$valorComprobante= $comprobante->setIdComprobante($comp);
+		$valorComprobante= $comprobante->setIdComprobante($comp); // busco toda la info del comprobante
 
 
 		if($valorComprobante['response'] ){    //  si el resultado de setear el comprobante es favorable puedo desplegar el formulario
+
+			echo($id. 'este es el numero');
+
+			$template = $comprobante->getTemplateMail();
+			$html=$template[0]->content;
+			$asunto=$template[0]->topic;
+		var_dump($template[0]);
 
 			$comprobante->dataFactura(); // busco todos los datos del comprobante;
 
@@ -95,19 +103,21 @@ if (! $user->admin) accessforbidden();
 			$formmail->withto=(! empty($_POST['sendto'])?$_POST['sendto']:($comprobante->emailCliente));
 			$formmail->withtocc=(! empty($_POST['sendtocc'])?$_POST['sendtocc']:1);       // ! empty to keep field if empty
 			$formmail->withtoccc=(! empty($_POST['sendtoccc'])?$_POST['sendtoccc']:1);    // ! empty to keep field if empty
-			$formmail->withtopic=(isset($_POST['subject'])?$_POST['subject']:'Comprobante de pago '.$comprobante->referenciaComprobante);
+			$formmail->withtopic=(isset($_POST['subject'])?$_POST['subject']: $asunto.' Comprobante de pago '.$comprobante->referenciaComprobante);
 
 			$formmail->withtopicreadonly=0;
 			$formmail->withfile=2;
 			// este esw el cuerpo del mensaje
 
-			$formmail->withbody='__(Hello)__,<br><br>
+			$formmail->withbody=$html;
 
-			Estimado '.$comprobante->nombreCliente.' <br><br>
-			
-				Envio comprobante de pago para la factura '.$comprobante->referenciaFactura.' <br><br>
-				
-			__(Sincerely)__<br><br>'.$conf->global->MAIN_INFO_SOCIETE_NOM;
+			//$formmail->withbody='__(Hello)__,<br><br>
+//
+			//Estimado '.$comprobante->nombreCliente.' <br><br>
+			//
+			//	Envio comprobante de pago para la factura '.$comprobante->referenciaFactura.' <br><br>
+			//	
+			//__(Sincerely)__<br><br>'.$conf->global->MAIN_INFO_SOCIETE_NOM;
 
 			$formmail->withbodyreadonly=0;
 			$formmail->withcancel=1;

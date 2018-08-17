@@ -295,12 +295,6 @@ class getComprobantes // extends CommonObject
 
 
 
-
-
-
-
-
-
     //region Afip
 
 
@@ -327,6 +321,65 @@ class getComprobantes // extends CommonObject
 
 
 
+    public function getTemplateMail($id=null){
+
+        $sql = "SELECT *";
+        $sql.= " FROM " . MAIN_DB_PREFIX ."c_email_templates where type_template = 'facture_send' ";
+
+        if(!is_null($id)){
+
+            $sql.= " AND rowid = " . $id;
+        }
+        $sql.= " order by rowid asc ";
+        
+        
+        echo($sql);
+
+        $lista=array(); // aqui es donde voy a traer la o las plantillas
+          
+        dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
+        $resql = $this->db->query($sql);
+
+        if ($resql->num_rows > 0) {
+
+           
+                    $num = $this->db->num_rows($resql);
+                    $i = 0;
+                    if ($num)
+                    {
+                            while ($i < $num)
+                            {
+                                    $obj = $this->db->fetch_object($resql);
+                                    if ($obj)
+                                    {
+                                       array_push( $lista, $obj);
+                                    }
+                                    $i++;
+                            }
+                    }
+            
+                    
+            return $lista ;
+
+        } else {
+            $this->error = "Error " . $this->db->lasterror();
+            dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
+
+            return false;
+        }
+
+
+    }
+
+    public function sustitution($text, $data){
+
+
+        
+
+
+
+
+    }
 
 
 
@@ -337,8 +390,7 @@ class getComprobantes // extends CommonObject
 
 
 
-
-
+//region prueba
 
 
 
@@ -654,4 +706,7 @@ class getComprobantes // extends CommonObject
         $this->prop1 = 'prop1';
         $this->prop2 = 'prop2';
     }
+
+//endregion prueba
+
 }
