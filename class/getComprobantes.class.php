@@ -324,7 +324,7 @@ class getComprobantes // extends CommonObject
     public function getTemplateMail($id=null){
 
         $sql = "SELECT *";
-        $sql.= " FROM " . MAIN_DB_PREFIX ."c_email_templates where type_template = 'facture_send' ";
+        $sql.= " FROM " . MAIN_DB_PREFIX ."c_email_templates where type_template = 'all' ";
 
         if(!is_null($id)){
 
@@ -371,11 +371,29 @@ class getComprobantes // extends CommonObject
 
     }
 
+    //  este metodo recibe la plantilla y los datos del comprobante
+    // hay un seteo previo en un array de cada parametro util
+    //luego un  reemplazo de cada valor
+    // finalmente devuelve una cadena reemplazada
+
     public function sustitution($text, $data){
 
 
         
-
+        $substitutionarrayfortest=array(
+            '__DOL_MAIN_URL_ROOT__'=>DOL_MAIN_URL_ROOT,
+            '__ID__' => 'RecipientIdRecord',
+            //'__EMAIL__' => 'RecipientEMail',				// Done into actions_sendmails
+            '__CHECK_READ__' => (is_object($object) && is_object($object->thirdparty))?'<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.$object->thirdparty->tag.'&securitykey='.urlencode($conf->global->MAILING_EMAIL_UNSUBSCRIBE_KEY).'" width="1" height="1" style="width:1px;height:1px" border="0"/>':'',
+            '__USER_SIGNATURE__' => (($user->signature && empty($conf->global->MAIN_MAIL_DO_NOT_USE_SIGN))?$usersignature:''),		// Done into actions_sendmails
+            '__LOGIN__' => 'RecipientLogin',
+            '__LASTNAME__' => 'RecipientLastname',
+            '__FIRSTNAME__' => 'RecipientFirstname',
+            '__ADDRESS__'=> 'RecipientAddress',
+            '__ZIP__'=> 'RecipientZip',
+            '__TOWN_'=> 'RecipientTown',
+            '__COUNTRY__'=> 'RecipientCountry'
+            );
 
 
 

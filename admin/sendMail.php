@@ -63,9 +63,12 @@ if (! $user->admin) accessforbidden(); // check permisos
 
 			echo($id. 'este es el numero');
 
-			$template = $comprobante->getTemplateMail();
+			$template = $comprobante->getTemplateMail($idSelect);
 			$html=$template[0]->content;
 			$asunto=$template[0]->topic;
+
+
+
 		var_dump($template[0]);
 
 			$comprobante->dataFactura(); // busco todos los datos del comprobante;
