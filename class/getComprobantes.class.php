@@ -320,20 +320,22 @@ class getComprobantes // extends CommonObject
     //endregion Afip
 
 
+    // este metodo busca todos los templates de correos
+    // y trae todo lo que este en la categoria ALL
 
-    public function getTemplateMail($id=null){
+    public function getTemplateMail($id=""){
 
+
+        // var_dump($id);
         $sql = "SELECT *";
         $sql.= " FROM " . MAIN_DB_PREFIX ."c_email_templates where type_template = 'all' ";
 
-        if(!is_null($id)){
+        if($id != ""){
 
             $sql.= " AND rowid = " . $id;
         }
         $sql.= " order by rowid asc ";
         
-        
-        echo($sql);
 
         $lista=array(); // aqui es donde voy a traer la o las plantillas
           
@@ -378,24 +380,25 @@ class getComprobantes // extends CommonObject
 
     public function sustitution($text, $data){
 
-
+        // var_dump($text);
+        // var_dump($data);
         
-        $substitutionarrayfortest=array(
-            '__DOL_MAIN_URL_ROOT__'=>DOL_MAIN_URL_ROOT,
-            '__ID__' => 'RecipientIdRecord',
-            //'__EMAIL__' => 'RecipientEMail',				// Done into actions_sendmails
-            '__CHECK_READ__' => (is_object($object) && is_object($object->thirdparty))?'<img src="'.DOL_MAIN_URL_ROOT.'/public/emailing/mailing-read.php?tag='.$object->thirdparty->tag.'&securitykey='.urlencode($conf->global->MAILING_EMAIL_UNSUBSCRIBE_KEY).'" width="1" height="1" style="width:1px;height:1px" border="0"/>':'',
-            '__USER_SIGNATURE__' => (($user->signature && empty($conf->global->MAIN_MAIL_DO_NOT_USE_SIGN))?$usersignature:''),		// Done into actions_sendmails
-            '__LOGIN__' => 'RecipientLogin',
-            '__LASTNAME__' => 'RecipientLastname',
-            '__FIRSTNAME__' => 'RecipientFirstname',
-            '__ADDRESS__'=> 'RecipientAddress',
-            '__ZIP__'=> 'RecipientZip',
-            '__TOWN_'=> 'RecipientTown',
-            '__COUNTRY__'=> 'RecipientCountry'
-            );
+        $substitutionarray=array(
 
+            '__THIRDPARTY_NAME__' => $data->nombreCliente ,
+            '__REF__' => $data->referenciaFactura,	// Done into actions_sendmails
+            '__USER_SIGNATURE__' => (($user->signature && empty($conf->global->MAIN_MAIL_DO_NOT_USE_SIGN))?$usersignature:''),	
 
+        );
+
+        foreach($substitutionarray as $key =>$item){
+
+           // echo($key. 'y '.$item);
+            $text = str_replace($key, $item , $text);
+
+        }
+
+        return $text;
 
     }
 

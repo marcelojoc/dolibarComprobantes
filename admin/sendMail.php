@@ -36,10 +36,12 @@ $action=GETPOST('action','alpha');
 $comp=GETPOST('comp','alpha');
 $idSelect=GETPOST('modelmailselected','alpha');
 
+
 if (! $user->admin) accessforbidden(); // check permisos
 
 
- var_dump($_POST);
+
+//var_dump($_POST);
 
 	if($comp != ''){    //  si envio datos de id de comprobante
 
@@ -61,17 +63,15 @@ if (! $user->admin) accessforbidden(); // check permisos
 
 		if($valorComprobante['response'] ){    //  si el resultado de setear el comprobante es favorable puedo desplegar el formulario
 
-			echo($id. 'este es el numero');
-
 			$template = $comprobante->getTemplateMail($idSelect);
+		
 			$html=$template[0]->content;
 			$asunto=$template[0]->topic;
+			
 
-
-
-		var_dump($template[0]);
-
+			
 			$comprobante->dataFactura(); // busco todos los datos del comprobante;
+			
 
 			$id=0;
 			$actiontypecode='';     // Not an event for agenda
@@ -102,25 +102,16 @@ if (! $user->admin) accessforbidden(); // check permisos
 			$formmail->withfromreadonly=1;
 			$formmail->withsubstit=0;
 			$formmail->withfrom=1;
-			// $formmail->witherrorsto=1;
 			$formmail->withto=(! empty($_POST['sendto'])?$_POST['sendto']:($comprobante->emailCliente));
 			$formmail->withtocc=(! empty($_POST['sendtocc'])?$_POST['sendtocc']:1);       // ! empty to keep field if empty
 			$formmail->withtoccc=(! empty($_POST['sendtoccc'])?$_POST['sendtoccc']:1);    // ! empty to keep field if empty
-			$formmail->withtopic=(isset($_POST['subject'])?$_POST['subject']: $asunto.' Comprobante de pago '.$comprobante->referenciaComprobante);
+			$formmail->withtopic=(isset($_POST['subject'])?$_POST['subject']: $comprobante->sustitution($asunto,$comprobante ));
 
 			$formmail->withtopicreadonly=0;
 			$formmail->withfile=2;
 			// este esw el cuerpo del mensaje
 
-			$formmail->withbody=$html;
-
-			//$formmail->withbody='__(Hello)__,<br><br>
-//
-			//Estimado '.$comprobante->nombreCliente.' <br><br>
-			//
-			//	Envio comprobante de pago para la factura '.$comprobante->referenciaFactura.' <br><br>
-			//	
-			//__(Sincerely)__<br><br>'.$conf->global->MAIN_INFO_SOCIETE_NOM;
+			$formmail->withbody=$comprobante->sustitution($html,$comprobante );
 
 			$formmail->withbodyreadonly=0;
 			$formmail->withcancel=1;
@@ -137,7 +128,6 @@ if (! $user->admin) accessforbidden(); // check permisos
 			$formmail->param['id'] = $comp;
 			
 			$formmail->clear_attached_files();
-
 
 			$formmail->add_attached_files($file, basename($file), 'application/pdf');
 			print $formmail->get_form();
