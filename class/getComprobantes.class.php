@@ -285,11 +285,6 @@ class getComprobantes // extends CommonObject
             return false;
         }
 
-
-
-
-
-
     }
 
 
@@ -320,6 +315,8 @@ class getComprobantes // extends CommonObject
     //endregion Afip
 
 
+
+    //region template email
     // este metodo busca todos los templates de correos
     // y trae todo lo que este en la categoria ALL
 
@@ -372,6 +369,7 @@ class getComprobantes // extends CommonObject
 
 
     }
+    
 
     //  este metodo recibe la plantilla y los datos del comprobante
     // hay un seteo previo en un array de cada parametro util
@@ -402,10 +400,7 @@ class getComprobantes // extends CommonObject
 
     }
 
-
-
-
-
+    //endregion template enmail
 
 
 

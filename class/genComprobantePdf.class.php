@@ -23,9 +23,9 @@ class genComprobantePdf
 		
 		// set document information
 		$this->pdf->SetCreator(PDF_CREATOR);
-		$this->pdf->SetAuthor('Nicola Asuni');
-		$this->pdf->SetTitle('PDF COMPROBANTES');
-		$this->pdf->SetSubject('TCPDF COMPROBANTES');
+		$this->pdf->SetAuthor($conf['empresa']);
+		$this->pdf->SetTitle('COMPROBANTES');
+		$this->pdf->SetSubject('PDF COMPROBANTES');
 		$this->langs = $langs;
 		$this->conf = $conf;
 
