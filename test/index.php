@@ -62,10 +62,16 @@ include_once ( '../class/genComprobantePdf.class.php');
 
 );
 
- $test = new genComprobantePdf($db,$langs, $config  );
+ $test = new getComprobantes($db );
 
- $test->dibujar(224);
- $test->sendMailComprobante();
+
+$valor = $test->setIdComprobante(851);
+ $aa= $test->getIdFactura();
+
+echo('<pre>');
+var_dump($valor);
+var_dump($aa);
+echo('</pre>');
 
 
 
@@ -75,7 +81,7 @@ include_once ( '../class/genComprobantePdf.class.php');
 
 
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -104,4 +110,4 @@ include_once ( '../class/genComprobantePdf.class.php');
 
 
 </body>
-</html>
+</html> -->

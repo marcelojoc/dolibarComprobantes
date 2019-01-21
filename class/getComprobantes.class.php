@@ -2,10 +2,11 @@
 
 
 /**
- * 	\file		class/myclass.class.php
- * 	\ingroup	mymodule
- * 	\brief		This file is an example CRUD class file (Create/Read/Update/Delete)
- * 				Put some comments here
+ * Primero obtengo el numero de comprobante,  
+ * este esta asociado a una o muchas facturas, por que se pueden pagar varias en unn mismo pago
+ * deberia tener un array con todas las facturas asociadas a ese pago  
+ * el resto de los valores son los mismos solo hay que alterar los datos de la factura que deberian ser muchas en el array
+ * 
  */
 // Put here all includes required by your class file
 
@@ -30,16 +31,18 @@ class getComprobantes // extends CommonObject
 
     private $db; //!< To store db handler
     public $error; //!< To return error code (or message)
-    public $id;     // el id de la factura
     public $comprobante;  // este es el numero de comprobante
-    public $referenciaFactura;  // el nombre de referencia de la factura ejemplo FA1807-13808
     public $fecha; // fecha actual
-    public $fechaVencimiento;  // venc  de la factura generada
-    public $fechaFactura;  // fecha de la factura realizada
     public $idCliente;  // id del cleinte 
     public $nombreCliente;  // id del cleinte 
     public $direccionCliente;  // direccion Cliente
     public $emailCliente;  // direccion de correo electronico del cliente
+
+
+    public $id;     // el id de la factura
+    public $referenciaFactura;  // el nombre de referencia de la factura ejemplo FA1807-13808
+    public $fechaVencimiento;  // venc  de la factura generada
+    public $fechaFactura;  // fecha de la factura realizada
     public $total;  /// total de la factura  total_ttc
     public $monto;  // este valor es el monto pagado puede ser inferior al valor total  en ese caso quedaria adeudando
     public $montoTotalPagado;  // este valor es la sumatoria de los pagos para una factura
@@ -48,9 +51,13 @@ class getComprobantes // extends CommonObject
     public $numeroDePago;  // numero del cheque
     public $banco;  // si es cheque o efectivo
     public $referenciaComprobante;  // refrerencia del comprobante PAY1807-14074
+
+
     public $objAfip= false;  // objeto con todo los datos de la factura Electronica
     public $nota;  // nota del pago realizado
 
+    
+    public $facturas = array();  // aqui van los dtos de cada factura asociada a un comprobante 
 
     
     /**
@@ -77,7 +84,19 @@ class getComprobantes // extends CommonObject
 
                 $this->comprobante = $comprobante; // seteo el numero de id comprobante
 
-                if($this->getIdFactura() == 1){
+                $checkFacturas= $this->getIdFactura();  // aqui veo cuales son las facturas que existen para el pago seleccionado
+
+                if($checkFacturas['response']){
+
+                        // aqui voy a llamar a un metodo que traiga los datos de la factura segun los id seleccionados
+                    $facturas = $checkFacturas['data']; // aqui me dejo las facturas seas cuantas sean
+
+                    foreach($facturas as $factura){
+
+
+
+                    }
+
 
                     $resultado=['response'=>true, 'msg'=>'Valor comprobante seteado correctamente'];
 
@@ -107,7 +126,7 @@ class getComprobantes // extends CommonObject
     /**
      * Este metodo  toma el id del comprobante  y lo asocia con el id de factura correspondiente
      */
-    private function getIdFactura(){
+    public function getIdFactura_Original(){
 
         $sql = "SELECT";
         $sql.= " *";
@@ -140,24 +159,66 @@ class getComprobantes // extends CommonObject
 
     }
 
+
+    public function getIdFactura(){
+
+        $sql = "SELECT";
+        $sql.= " *";
+        $sql.= " FROM " . MAIN_DB_PREFIX . "paiement_facture as p";
+        $sql.= " WHERE p.fk_paiement = " . $this->comprobante;
+        
+
+        $data = $this->queryGen($sql);
+        //echo($sql);
+        if( is_null($data)){
+            return array('result'=> false, 'data'=> 'no se encuentran valores ');
+        }else{
+
+            return array('result'=> true, 'data'=> $data);
+        }
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Este metodo asigna cada valor de la factura a los atributos de la clase
      * 
      */
-    public function dataFactura(){
+    public function dataFactura($idFactura){
 
         $factura = new facture($this->db); // instancio la clase factura
-        $factura->fetch($this->id); // cargo los datos  para el id de la factura asociada
+        $factura->fetch($idFactura); // cargo los datos  para el id de la factura asociada
 
-        $this->referenciaFactura= $factura->ref;
-        // $this->fecha=  date('d/m/Y', $factura->date);
-        $this->fechaVencimiento=  date('d/m/Y', $factura->date_lim_reglement);
-        $this->fechaFactura=  date('d/m/Y', $factura->date_creation); 
-        $this->idCliente= $factura->socid;
 
-        $this->total= floatval($factura->total_ttc);
-        $this->pagada= $factura->paye;
+        $valorFactura = [
 
+            'referenciaFactura'=> $factura->ref,
+            'fechaVencimiento'=> date('d/m/Y', $factura->date_lim_reglement) ,
+            'fechaFactura'=>     date('d/m/Y', $factura->date_creation),
+            'idCliente'=>        $factura->socid,
+            'total'=>            floatval($factura->total_ttc),
+            'pagada'=>           $factura->paye
+        ];
+        // $this->referenciaFactura= $factura->ref;
+        // // $this->fecha=  date('d/m/Y', $factura->date);
+        // $this->fechaVencimiento=  date('d/m/Y', $factura->date_lim_reglement);
+        // $this->fechaFactura=  date('d/m/Y', $factura->date_creation); 
+        // $this->idCliente= $factura->socid;
+        // $this->total= floatval($factura->total_ttc);
+        //$this->pagada= $factura->paye;
 
         $this->getClient();  // asigno los datos del cliente
         $this->getPaiement();   // asigno los datos del PAGO
@@ -165,6 +226,37 @@ class getComprobantes // extends CommonObject
         $this->getAfip();  // si esta activo el modulo trae el valor de datos electronicos, si no esta trae falso y si no esta activo el paramentro afip queda NULL
     }
 
+
+
+    /** 
+     * Este metodo deberia traer una ista de facturas asociadas a un mismo comprobante
+     * 
+    */
+    public function addFacturas (){
+
+        $factura = new facture($this->db); // instancio la clase factura
+        $valor=  $factura->fetch($this->id); // cargo los datos  para el id de la factura asociada
+
+        echo('<pre>');
+var_dump($valor);
+echo('</pre>');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
 
     /**
      * En este metodo se asignan los datos del cliente 
@@ -186,14 +278,14 @@ class getComprobantes // extends CommonObject
      * y los trae como un solo monto...  
      * esto se aplica para pagos parciales de facturas o usando diferentes medios de pago
      */
-    private function getTotalAmount (){
+    public function getTotalAmount ( $idFactura){
 
         $total=0;
 
         $sql = "SELECT";
         $sql.= " *";
         $sql.= " FROM " . MAIN_DB_PREFIX . "paiement_facture as p";
-        $sql.= " WHERE p.fk_facture = " . $this->id;
+        $sql.= " WHERE p.fk_facture = " . $idFactura;
         
         dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
         $resql = $this->db->query($sql);
@@ -404,6 +496,44 @@ class getComprobantes // extends CommonObject
 
 
 
+
+
+    // #region consulta SQL
+        /**
+         * Este metodo es para no repetir codigo al momento de una consulta
+         * recibe @consulta SQL
+         * recibe parametro extra
+         * y devuelve el resultado completo de la consulta
+         */
+        public function queryGen ( $sql,  $params=null){
+            $respuesta= array(); // este es el contenedor
+            $resp= $this->db->query($sql);                // hago la consulta a la base de datos
+            
+            if ($resp) {
+                $num = $this->db->num_rows($resp);
+                $i = 0;
+                if ($num)
+                {
+                        while ($i < $num)
+                        {
+                                $obj = $this->db->fetch_object($resp);
+                                if ($obj)
+                                {
+                                        // You can use here results
+                                        
+                                        array_push($respuesta, $obj);
+                                }
+                                $i++;
+                        }
+                        return  $respuesta;
+                }
+            } else {
+                $this->error = "Error " . $this->db->lasterror();
+                dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
+                return -1;
+            }
+        }
+    // #endregion consulta SQL
 
 
 //region prueba

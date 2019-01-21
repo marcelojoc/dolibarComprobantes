@@ -67,12 +67,6 @@ $certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
 	$this->pdf->setSignature($certificate, $certificate, 'tcpdfdemo', '', 2, $info); 
 
 
-
-
-
-
-
-
 			$this->pdf->SetFont('helvetica', '', 9);
 		
 			// add a page
