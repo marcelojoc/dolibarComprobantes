@@ -65,12 +65,12 @@ include_once ( '../class/genComprobantePdf.class.php');
  $test = new getComprobantes($db );
 
 
-$valor = $test->setIdComprobante(851);
+$valor = $test->setIdComprobante(852);
  $aa= $test->getIdFactura();
 
 echo('<pre>');
-var_dump($valor);
-var_dump($aa);
+//var_dump($test);
+// var_dump($test);
 echo('</pre>');
 
 
