@@ -46,7 +46,7 @@ class getComprobantes // extends CommonObject
     public $referenciaComprobante;  // refrerencia del comprobante PAY1807-14074
 
 
-    public $objAfip= false;  // objeto con todo los datos de la factura Electronica
+    //public $objAfip= false;  // objeto con todo los datos de la factura Electronica
     public $nota;  // nota del pago realizado
 
     
@@ -79,24 +79,18 @@ class getComprobantes // extends CommonObject
 
                 $checkFacturas= $this->getIdFactura();  // aqui veo cuales son las facturas que existen para el pago seleccionado
 
-
                 if($checkFacturas['result']){
 
                     $facturas = $checkFacturas['data']; // aqui me dejo las facturas seas cuantas sean
-
-
                     
                     foreach($facturas as $factura){   // almaceno todas las facturas asociadas al pago este
                         
                         array_push($this->facturas , $this->dataFactura($factura->fk_facture) );
-                        // $this->getClient($factura->fk_soc);
+
                     }
 
-
                     $this->getPaiement();   // asigno los datos del PAGO
-                    $this->montoTotalPagado = $this->getTotalAmount(); // sumatoria de los pagos realizados para esta factura
                     $this->getClient();  // asigno los datos del cliente
-                    $this->getAfip();  // si esta activo el modulo trae el valor de datos electronicos, si no esta trae falso y si no esta activo el paramentro afip queda NULL
                     // echo('<pre>');
                     // var_dump($this->facturas);
                     
@@ -193,30 +187,25 @@ class getComprobantes // extends CommonObject
         $factura = new facture($this->db); // instancio la clase factura
         $factura->fetch($idFactura); // cargo los datos  para el id de la factura asociada
         
+
+        $this->idCliente = $factura->socid; // aqui seteo el cliente para despues escribir los datos
+
+        $this->montoTotalPagado += $this->getTotalAmount($idFactura); // traigo el total abonado
+
+
         $valorFactura = [
 
             'referenciaFactura'=> $factura->ref,
             'fechaVencimiento'=> date('d/m/Y', $factura->date_lim_reglement) ,
             'fechaFactura'=>     date('d/m/Y', $factura->date_creation),
-            'idCliente'=>        $factura->socid,
             'total'=>            floatval($factura->total_ttc),
-            'pagada'=>           $factura->paye
-            
+            'pagada'=>           $factura->paye,
+            'afip'=>           $this->getAfip($idFactura),
         ];
+        
 
         return $valorFactura;
-        // $this->referenciaFactura= $factura->ref;
-        // // $this->fecha=  date('d/m/Y', $factura->date);
-        // $this->fechaVencimiento=  date('d/m/Y', $factura->date_lim_reglement);
-        // $this->fechaFactura=  date('d/m/Y', $factura->date_creation); 
-        // $this->idCliente= $factura->socid;
-        // $this->total= floatval($factura->total_ttc);
-        //$this->pagada= $factura->paye;
 
-        // $this->getClient();  // asigno los datos del cliente
-        // $this->getPaiement();   // asigno los datos del PAGO
-        // $this->montoTotalPagado = $this->getTotalAmount(); // sumatoria de los pagos realizados para esta factura
-        // $this->getAfip();  // si esta activo el modulo trae el valor de datos electronicos, si no esta trae falso y si no esta activo el paramentro afip queda NULL
     }
 
 
@@ -226,15 +215,12 @@ class getComprobantes // extends CommonObject
     /**
      * En este metodo se asignan los datos del cliente 
      */
-    private function getClient($idCliente){
+    private function getClient(){
 
+   
         $societe = new Societe($this->db);
-        $societe->fetch($idCliente);
+        $societe->fetch($this->idCliente);
 
-                    echo('<pre>');
-                    var_dump($societe->nom);
-                    
-                    echo('</pre>');
         $this->nombreCliente = $societe->nom;  
         $this->direccionCliente= $societe->address;  
         $this->emailCliente= ($societe->email == null) ? "Sin correo definido" : $societe->email; 
@@ -357,14 +343,14 @@ class getComprobantes // extends CommonObject
     /**
      * Este metodo asigna los valores de acuerdo a si esta validada en Afip o no
      */
-    public function getAfip(){
+    public function getAfip($idFactura){
 
         
         // if (! empty($conf->facturaelectronica->enabled)) {
 
             // instancio la clase de consulta con la instancia de base de datos y el id de factura
-            $afip = new consultaFactura($this->db, $this->id );
-            $this->objAfip = $afip->checkValidation();
+            $afip = new consultaFactura($this->db, $idFactura );
+            //$this->objAfip = $afip->checkValidation();
             return $afip->checkValidation();
 
         // }

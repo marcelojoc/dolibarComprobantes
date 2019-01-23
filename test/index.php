@@ -66,10 +66,10 @@ include_once ( '../class/genComprobantePdf.class.php');
 
 
 $valor = $test->setIdComprobante(852);
- $aa= $test->getIdFactura();
+ //$aa= $test->getTotalAmount('1067');
 
 echo('<pre>');
-//var_dump($test);
+var_dump($test);
 // var_dump($test);
 echo('</pre>');
 
