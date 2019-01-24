@@ -44,11 +44,12 @@ class genComprobantePdf
 		
 		$valorComprobante= $comprobante->setIdComprobante($comp);
 		
-		$comprobante->dataFactura();
+		// $comprobante->dataFactura();
 		// var_dump($comprobante);
 		
 		// exit;
 		if($valorComprobante['response']){
+
 
 
 
@@ -121,11 +122,11 @@ $certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
 				
 				<p><b>Por los siguientes conceptos: </b>'.$comprobante->referenciaFactura ;
 			
-			if($comprobante->objAfip != false){
+			// if($comprobante->objAfip != false){
 
-				$datoAfip= $comprobante->objAfip->ptovta.'-'.str_pad($comprobante->objAfip->nComprobanteAfip, 8, "0", STR_PAD_LEFT);
-				$txt.= ' - Afip '.$datoAfip;
-			}
+			// 	$datoAfip= $comprobante->objAfip->ptovta.'-'.str_pad($comprobante->objAfip->nComprobanteAfip, 8, "0", STR_PAD_LEFT);
+			// 	$txt.= ' - Afip '.$datoAfip;
+			// }
 			
 				$txt.= '</p><br>';
 	
@@ -146,30 +147,38 @@ $certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
 			  <td><strong>Banco</strong></td>
 			  <td><strong>Nota</strong></td>
 			  <td><strong>Importe</strong></td>
-			</tr>
+			</tr>';
 	
-			<tr>
-			  <td>'.$comprobante->referenciaFactura.' '.$datoAfip.'</td>
-			  <td>'.$comprobante->fechaFactura.'</td>
-			  <td> $'.$comprobante->total.'</td>
-			  <td>'.$comprobante->medioDePago.' '.$comprobante->numeroDePago.'</td>
-			  <td>'.$comprobante->banco.'</td>
-			  <td>'.$comprobante->nota.'</td>
-			  <td> $'.$comprobante->monto.'</td>
-			</tr>
+			$totalesDeFacturas= 0;
+
+			foreach($comprobante->facturas as $facturas){
+
+				$tblDatos .='
+				
+				<tr>
+					<td>'.$facturas['referenciaFactura'].' '.$datoAfip.'</td>
+					<td>'.$facturas['fechaFactura'].'</td>
+					<td> $'.$facturas['total'].'</td>
+					<td>'.$comprobante->medioDePago.' '.$comprobante->numeroDePago.'</td>
+					<td>'.$comprobante->banco.'</td>
+					<td>'.$comprobante->nota.'</td>
+					<td> $'.$comprobante->monto.'</td>
+				</tr>';
+
+
+				$totalesDeFacturas +=  intval($facturas['total']);
+			}
+
 	
+
 	
-	
-	
-	
-		  </table>
-			';
+		  $tblDatos .= '</table>';
 			
 			 $this->pdf->writeHTML($tblDatos, true, false, false, false, '');
 	
 			$htmlTotal = '
 			<H3 align="right"> Total : $ '.$comprobante->monto.' </H3>
-			<H3 align="right" color="red"> Pendiente :  $'.(intval($comprobante->total - $comprobante->montoTotalPagado)).'</H3>
+			<H3 align="right" color="red"> Pendiente :  $'.(intval(	$totalesDeFacturas - $comprobante->montoTotalPagado)).'</H3>
 			<hr>';
 	
 			$this->pdf->writeHTML($htmlTotal, true, false, false, false, '');
