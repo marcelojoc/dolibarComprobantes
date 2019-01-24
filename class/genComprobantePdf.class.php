@@ -22,10 +22,10 @@ class genComprobantePdf
 		$this->pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 		
 		// set document information
-		$this->pdf->SetCreator(PDF_CREATOR);
-		$this->pdf->SetAuthor('Nicola Asuni');
-		$this->pdf->SetTitle('PDF COMPROBANTES');
-		$this->pdf->SetSubject('TCPDF COMPROBANTES');
+		$this->pdf->SetCreator($conf['empresa'].' - ' .$conf['web']);
+		$this->pdf->SetAuthor($conf['empresa']);
+		$this->pdf->SetTitle('COMPROBANTES');
+		$this->pdf->SetSubject('PDF COMPROBANTES');
 		$this->langs = $langs;
 		$this->conf = $conf;
 
@@ -49,6 +49,22 @@ class genComprobantePdf
 		
 		// exit;
 		if($valorComprobante['response']){
+
+
+
+			// set certificate file 
+$certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
+
+	// set additional information 
+	$info = array(
+		'Name' => 'TCPDF', 
+		'Location' => 'Office', 
+		'Reason' => 'Testing TCPDF', 
+		'ContactInfo' => 'http://www.tcpdf.org', 
+		); 
+	
+	// set document signature 
+	$this->pdf->setSignature($certificate, $certificate, 'tcpdfdemo', '', 2, $info); 
 
 
 			$this->pdf->SetFont('helvetica', '', 9);
