@@ -162,7 +162,7 @@ $certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
 					<td>'.$comprobante->medioDePago.' '.$comprobante->numeroDePago.'</td>
 					<td>'.$comprobante->banco.'</td>
 					<td>'.$comprobante->nota.'</td>
-					<td> $'.$comprobante->monto.'</td>
+					<td> $'.$facturas['total'].'</td>
 				</tr>';
 
 
