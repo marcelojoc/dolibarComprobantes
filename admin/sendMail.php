@@ -31,17 +31,39 @@ require_once DOL_DOCUMENT_ROOT."/comprobantes/class/getComprobantes.class.php";
 $langs->load("mails");
 $langs->load("other");
 $langs->load("errors");
-
 $action=GETPOST('action','alpha');
 $comp=GETPOST('comp','alpha');
 $idSelect=GETPOST('modelmailselected','alpha');
 
 
-if (! $user->admin) accessforbidden(); // check permisos
+//if (! $user->admin) accessforbidden(); // check permisos
+
+// echo('<pre>');
+// var_dump($user->admin);
+// echo($user->rights->Comprobantes->comprobante);
+// echo('</pre>');
+// accessforbidden();
 
 
 
-//var_dump($_POST);
+if($user->admin == 0){
+
+		if(is_null($user->rights->Comprobantes->comprobante) ){
+			accessforbidden();
+		}
+
+}
+
+/**
+ * Gestionar permisos generales y propios del modulo
+ *   $user->rights->Comprobantes->comprobante    
+ * Si es NULL es que no tiene permisos
+ * si es 1   tiene permisos para enviar compr
+ * 
+ * permisos de admin
+ * $user->admin  si es O CERO  entonces no es admin
+ * en cambo si es 1  UNO es administrador  debe poder acceder
+ */
 
 	if($comp != ''){    //  si envio datos de id de comprobante
 

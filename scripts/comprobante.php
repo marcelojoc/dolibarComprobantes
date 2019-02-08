@@ -4,7 +4,13 @@ include_once ( '../class/getComprobantes.class.php');
 include_once ( '../class/genComprobantePdf.class.php');
 
 
+if($user->admin == 0){
 
+    if(is_null($user->rights->Comprobantes->comprobante) ){
+        accessforbidden();
+    }
+
+}
 
 
 

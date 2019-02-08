@@ -109,7 +109,7 @@ class modComprobantes extends DolibarrModules
 
         // Dependencies
         // List of modules id that must be enabled if this module is enabled
-        $this->depends = array("numberwords");
+        $this->depends = array();
         // List of modules id to disable if this one is disabled
         $this->requiredby = array();
         // Minimum version of PHP required by module
@@ -226,9 +226,15 @@ class modComprobantes extends DolibarrModules
          */
 
         // Permissions
-        $this->rights = array(); // Permission array used by this module
-        $r = 0;
 
+
+        $this->rights = array();  // Permission array used by this module
+        $r = 0;
+        //Perms
+        $this->rights[$r][0] = 40909999;
+        $this->rights[$r][1] = 'Envio de comprobantes';
+        $this->rights[$r][3] = 0;
+        $this->rights[$r][4] = 'comprobante';
         // Add here list of permission defined by
         // an id, a label, a boolean and two constant strings.
         // Example:
