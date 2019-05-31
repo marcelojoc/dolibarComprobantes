@@ -190,7 +190,7 @@ class getComprobantes // extends CommonObject
 
         $this->idCliente = $factura->socid; // aqui seteo el cliente para despues escribir los datos
 
-        $this->montoTotalPagado += $this->getTotalAmount($idFactura); // traigo el total abonado
+        $this->montoTotalPagado = $this->getTotalPaiement(); // traigo el total abonado
 
 
         $valorFactura = [
@@ -199,6 +199,7 @@ class getComprobantes // extends CommonObject
             'fechaVencimiento'=> date('d/m/Y', $factura->date_lim_reglement) ,
             'fechaFactura'=>     date('d/m/Y', $factura->date_creation),
             'total'=>            floatval($factura->total_ttc),
+            'importe'=>          $this->getPaiementMade($idFactura),
             'pagada'=>           $factura->paye,
             'afip'=>           $this->getAfip($idFactura),
         ];
@@ -243,6 +244,8 @@ class getComprobantes // extends CommonObject
         $sql.= " FROM " . MAIN_DB_PREFIX . "paiement_facture as p";
         $sql.= " WHERE p.fk_facture = " . $idFactura;
         
+
+        //echo($sql);
         dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
         $resql = $this->db->query($sql);
    
@@ -266,6 +269,87 @@ class getComprobantes // extends CommonObject
 
     }
 
+
+
+    // este metodo  recibe el numero  de comprobante  y el numero  de factura  y te devuelve  el monto  abonado
+    // el monto que pone manualmente  en el cuadro  de texto  para  genera  un pago
+    //$idFactura   es el id  de la factura asociada
+    // $idPaiement  o $this->comprobante  es el id  del pago  realizado  
+
+    public function getPaiementMade($idFactura , $idPaiement = null){
+
+            // $this->comprobante
+            if(is_null($idPaiement)){
+
+                $idPaiement = $this->comprobante;
+            }
+            $total=0;
+            $sql = "SELECT";
+            $sql.= " *";
+            $sql.= " FROM " . MAIN_DB_PREFIX . "paiement_facture as pf";
+            $sql.= " WHERE pf.fk_paiement = " . $idPaiement ;
+            $sql.= " AND pf.fk_facture = " . $idFactura ;
+            
+            dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
+            $resql = $this->db->query($sql);
+    
+            if ($resql->num_rows > 0) {
+
+                while ($obj = $this->db->fetch_object($resql)) {
+                
+                    $total = floatval($obj->amount);
+                }
+                
+                $this->db->free($resql);
+
+                return $total;
+
+            } else {
+                $this->error = "Error " . $this->db->lasterror();
+                dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
+
+                return false;
+            }
+
+    }
+
+    //igual que el anterior  pero  devuelve  una lista  de montos  pagados
+
+    public function getTotalPaiement ( $idPaiement = null){
+
+        if(is_null($idPaiement)){
+
+            $idPaiement = $this->comprobante;
+        }
+
+        $total=0;
+        $sql = "SELECT";
+        $sql.= " *";
+        $sql.= " FROM " . MAIN_DB_PREFIX . "paiement as p";
+        $sql.= " WHERE p.rowid = " . $idPaiement;
+        
+        dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
+        $resql = $this->db->query($sql);
+   
+        if ($resql->num_rows > 0) {
+
+            while ($obj = $this->db->fetch_object($resql)) {
+               
+                $total = floatval($obj->amount);
+            }
+            
+            $this->db->free($resql);
+
+            return $total;
+
+        } else {
+            $this->error = "Error " . $this->db->lasterror();
+            dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
+
+            return false;
+        }
+
+    }
 
 
 // este metodo  trae todos los valores de la tabla paiement 
