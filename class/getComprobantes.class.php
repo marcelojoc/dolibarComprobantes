@@ -190,7 +190,7 @@ class getComprobantes // extends CommonObject
 
         $this->idCliente = $factura->socid; // aqui seteo el cliente para despues escribir los datos
 
-        $this->montoTotalPagado = $this->getTotalPaiement(); // traigo el total abonado
+        $this->montoTotalPagado += $this->getTotalAmount($idFactura); // traigo el total abonado
 
 
         $valorFactura = [
