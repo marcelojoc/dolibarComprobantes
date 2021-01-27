@@ -78,7 +78,7 @@ echo('</pre>');
 ?>
 
 
-
+<?php phpinfo() ?>
 
 
 <!-- <!DOCTYPE html>

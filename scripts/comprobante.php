@@ -12,11 +12,12 @@ if($user->admin == 0){
 
 }
 
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 
 $comprobante = (GETPOST('comp', 'int') ? GETPOST('comp', 'int') : GETPOST('comp', 'int')); // For backward compatibility
 
-// var_dump($comprobante);
+//var_dump($comprobante);
 
 // var_dump($conf->global->MAIN_INFO_SOCIETE_NOM);
 // var_dump($conf->global->MAIN_INFO_SOCIETE_ADDRESS);

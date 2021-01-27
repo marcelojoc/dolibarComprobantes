@@ -5,19 +5,17 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/pdf.lib.php';
 require_once TCPDF_PATH.'tcpdf.php';
 require_once DOL_DOCUMENT_ROOT."/comprobantes/class/getComprobantes.class.php";
 
-
 // $conf->mycompany->dir_output.'/logos/';
 // var_dump($conf->mycompany->dir_output.'/logos/');
 // var_dump(DOL_URL_ROOT);
+
 class genComprobantePdf 
 {
-
 
 
 	function __construct($db, $langs ,$conf)
 	{
 
-		
 		$this->db = $db;
 		$this->pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 		
@@ -45,60 +43,58 @@ class genComprobantePdf
 		$valorComprobante= $comprobante->setIdComprobante($comp);
 		
 		// $comprobante->dataFactura();
-		// var_dump($comprobante);
-		
-		// exit;
+
 		if($valorComprobante['response']){
+						// set certificate file 
+				$certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
+
+				// set additional information 
+				$info = array(
+					'Name' => 'TCPDF', 
+					'Location' => 'Office', 
+					'Reason' => 'Testing TCPDF', 
+					'ContactInfo' => 'http://www.tcpdf.org', 
+					); 
+
+				// set document signature 
 
 
+				$this->pdf->setSignature($certificate, $certificate, 'tcpdfdemo', '', 2, $info); 
 
-
-			// set certificate file 
-$certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
-
-	// set additional information 
-	$info = array(
-		'Name' => 'TCPDF', 
-		'Location' => 'Office', 
-		'Reason' => 'Testing TCPDF', 
-		'ContactInfo' => 'http://www.tcpdf.org', 
-		); 
-	
-	// set document signature 
-	$this->pdf->setSignature($certificate, $certificate, 'tcpdfdemo', '', 2, $info); 
-
-
-			$this->pdf->SetFont('helvetica', '', 9);
-		
-			// add a page
-			$this->pdf->AddPage();
-		
-	
-			$this->pdf->Ln();
-			$tbl = '
-			<table cellspacing="0" cellpadding="5" border="0">
+				$this->pdf->SetFont('helvetica', '', 9);
 			
-			<tr>
-			  <td WIDTH="45%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="110"  />
-			  
-			  <br><small>'.$this->conf['empresa']. ' - '.$this->conf['direccion'].  ' - '.$this->conf['ciudad']
-			  . ' - Tel:'.$this->conf['tel']
-			  . ' - '.$this->conf['email']
-			  . ' - <b>'.$this->conf['web']
-			  .'</b></small>
-			  </td>';
+				// add a page
+				$this->pdf->AddPage();
+	
+				$this->pdf->Ln();
+
+
+			$tbl = '
+				<table cellspacing="0" cellpadding="5" border="0">
+				
+				<tr>
+					<td WIDTH="45%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="110"  />
+					
+					<br><small>'.$this->conf['empresa']. ' - '.$this->conf['direccion'].  ' - '.$this->conf['ciudad']
+					. ' - Tel:'.$this->conf['tel']
+					. ' - '.$this->conf['email']
+					. ' - <b>'.$this->conf['web']
+					.'</b></small>
+					</td>';
 
 				$tbl .='  <td WIDTH="10%" align="center" style="font-size: 25; align: top;"> <h1><b>X</b></h1> </td>';
 				$tbl .='  <td WIDTH="45%"> <small>DOCUMENTO NO VALIDO COMO FACTURA</small><h1><b>RECIBO</b></h1> N° '.$comprobante->referenciaComprobante;
 
 				$tbl .=  ' <h3>Fecha:  '.$comprobante->fecha.'</h3>';
 				$tbl .=  ' <small>CUIT:  '.$this->conf['cuit']. ' -  IIBB: '.$this->conf['iibb'].' <br><b> IVA RESPONSABLE INSCRIPTO</b></small>';
-
-			  	$tbl .=  '  </td></tr></table> <HR>';
+			  $tbl .=  '  </td></tr></table> <HR>';
 			
+
+
 				$this->pdf->writeHTML($tbl, true, false, false, false, '');
 
 				// separo el monto por que no lo escribe correctamente el modulo de dolibarr
+
 
 				$entero= strval($comprobante->monto);
 				$porciones = explode(".", $entero);
@@ -129,9 +125,10 @@ $certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
 			// }
 			
 				$txt.= '</p><br>';
-	
+
 			$this->pdf->writeHTML($txt, true, false, false, false, '');
 			$this->pdf->Ln();
+ 
 
 			$tblDatos = '
 			<table cellspacing="0" cellpadding="5" border="1">
@@ -170,17 +167,17 @@ $certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
 			}
 
 	
-
-	
 		  $tblDatos .= '</table>';
-			
+
 			 $this->pdf->writeHTML($tblDatos, true, false, false, false, '');
-	
+
+ 
 			$htmlTotal = '
 			<H3 align="right"> Total : $ '.$comprobante->monto.' </H3>
 			<H3 align="right" color="red"> Pendiente :  $'.(intval(	$totalesDeFacturas - $comprobante->montoTotalPagado)).'</H3>
 			<hr>';
-	
+
+
 			$this->pdf->writeHTML($htmlTotal, true, false, false, false, '');
 
 			$this->pdf->lastPage();
@@ -188,8 +185,11 @@ $certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
 			if($this->conf['download']== 'D' ) {  // esta opcion es para que lo descargue
 				
 				//Close and output PDF document
-				$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', $this->conf['download']);
+				//var_dump($this->conf['download']);
+				//$this->pdf->Output();
+				//exit;
 
+				$this->pdf->Output($comprobante->referenciaComprobante.'.pdf', $this->conf['download']);
 			}else{
 
 				if($this->conf['download']== 'I' ) {    // esta es para que solo lo dibuje y lo muestre en el navegador
