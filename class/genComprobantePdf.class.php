@@ -46,7 +46,9 @@ class genComprobantePdf
 
 		if($valorComprobante['response']){
 						// set certificate file 
-				$certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
+				//$certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
+				$certificate = "";
+
 
 				// set additional information 
 				$info = array(
@@ -59,7 +61,7 @@ class genComprobantePdf
 				// set document signature 
 
 
-				$this->pdf->setSignature($certificate, $certificate, 'tcpdfdemo', '', 2, $info); 
+				//$this->pdf->setSignature($certificate, $certificate, 'tcpdfdemo', '', 2, $info); 
 
 				$this->pdf->SetFont('helvetica', '', 9);
 			

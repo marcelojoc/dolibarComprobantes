@@ -3,6 +3,7 @@
 *.iml
 /dev/*
 vendor/*
+test/
 composer.json
 composer.lock
 *.crt
