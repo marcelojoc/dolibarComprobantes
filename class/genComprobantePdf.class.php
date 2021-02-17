@@ -47,7 +47,14 @@ class genComprobantePdf
 		if($valorComprobante['response']){
 						// set certificate file 
 				//$certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
-				$certificate = "";
+				//$certificate = "";
+
+				
+				// echo('<img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'" />');
+				// echo('<img  src="dolibar12/documents/mycompany/logos/v-logo-business-logo-and-symbols-template-vector.jpg
+				// " />');
+
+				// exit;
 
 
 				// set additional information 
@@ -69,14 +76,14 @@ class genComprobantePdf
 				$this->pdf->AddPage();
 	
 				$this->pdf->Ln();
-
+   // <td WIDTH="45%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="110"  />
 
 			$tbl = '
 				<table cellspacing="0" cellpadding="5" border="0">
 				
 				<tr>
-					<td WIDTH="45%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="110"  />
-					
+				<td WIDTH="45%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="110"  />
+
 					<br><small>'.$this->conf['empresa']. ' - '.$this->conf['direccion'].  ' - '.$this->conf['ciudad']
 					. ' - Tel:'.$this->conf['tel']
 					. ' - '.$this->conf['email']
@@ -92,8 +99,7 @@ class genComprobantePdf
 			  $tbl .=  '  </td></tr></table> <HR>';
 			
 
-
-				$this->pdf->writeHTML($tbl, true, false, false, false, '');
+				$this->pdf->writeHTML($tbl, true, false, true, false, '');
 
 				// separo el monto por que no lo escribe correctamente el modulo de dolibarr
 

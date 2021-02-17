@@ -12,8 +12,8 @@ if($user->admin == 0){
 
 }
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
 
 $comprobante = (GETPOST('comp', 'int') ? GETPOST('comp', 'int') : GETPOST('comp', 'int')); // For backward compatibility
 
