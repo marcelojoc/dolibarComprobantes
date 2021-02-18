@@ -49,8 +49,7 @@ class genComprobantePdf
 				//$certificate = DOL_DOCUMENT_ROOT."/comprobantes/crt/certificado.crt";
 				//$certificate = "";
 
-				
-				echo($this->conf['url'].$this->conf['logo']);
+			
 				// echo('<img  src="dolibar12/documents/mycompany/logos/v-logo-business-logo-and-symbols-template-vector.jpg
 				// " />');
 
