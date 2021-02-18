@@ -82,7 +82,7 @@ class genComprobantePdf
 				<table cellspacing="0" cellpadding="5" border="0">
 				
 				<tr>
-				<td WIDTH="45%" align="center">  <img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'"  height="110"  />
+				<td WIDTH="45%" align="center">  <img  src="'.$this->conf['url'].$this->conf['logo'].'"  height="110"  />
 
 					<br><small>'.$this->conf['empresa']. ' - '.$this->conf['direccion'].  ' - '.$this->conf['ciudad']
 					. ' - Tel:'.$this->conf['tel']

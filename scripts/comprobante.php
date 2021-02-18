@@ -19,19 +19,12 @@ $comprobante = (GETPOST('comp', 'int') ? GETPOST('comp', 'int') : GETPOST('comp'
 
 //var_dump($comprobante);
 
-// var_dump($conf->global->MAIN_INFO_SOCIETE_NOM);
-// var_dump($conf->global->MAIN_INFO_SOCIETE_ADDRESS);
-// var_dump($conf->global->MAIN_INFO_SOCIETE_ZIP);
-// var_dump($conf->global->MAIN_INFO_SOCIETE_TOWN);
-// var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO_SMALL);
-// var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO_MINI);
-// var_dump($conf->global->MAIN_INFO_SOCIETE_LOGO);
-// var_dump($conf->global->MAIN_INFO_SOCIETE_WEB);
-// var_dump($conf->global->MAIN_INFO_SOCIETE_MAIL);
-// var_dump($conf->global->MAIN_INFO_SOCIETE_TEL);
-// var_dump($conf->global->MAIN_INFO_SIRET);
-// var_dump($conf->global->MAIN_INFO_SIREN);
+$protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
 
+$domain = $_SERVER["HTTP_HOST"];
+$url = $_SERVER['REQUEST_URI'];
+$data = explode("scripts", $url);
+$urlSinParams = $data[0];
 
 $config = array( 
 
@@ -46,6 +39,7 @@ $config = array(
     'logo'=>$conf->global->MAIN_INFO_SOCIETE_LOGO,
     'iibb'=>$conf->global->MAIN_INFO_SIRET,
     'cuit'=>$conf->global->MAIN_INFO_SIREN,
+    'url'=>$protocol .$domain. $urlSinParams.'img/',
     'download'=>'D',
 
 
