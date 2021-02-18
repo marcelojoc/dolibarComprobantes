@@ -50,11 +50,11 @@ class genComprobantePdf
 				//$certificate = "";
 
 				
-				// echo('<img  src="'.DOL_DATA_ROOT.'/mycompany/logos/'.$this->conf['logo'].'" />');
+				echo($this->conf['url'].$this->conf['logo']);
 				// echo('<img  src="dolibar12/documents/mycompany/logos/v-logo-business-logo-and-symbols-template-vector.jpg
 				// " />');
 
-				// exit;
+				
 
 
 				// set additional information 
@@ -82,7 +82,7 @@ class genComprobantePdf
 				<table cellspacing="0" cellpadding="5" border="0">
 				
 				<tr>
-				<td WIDTH="45%" align="center">  <img  src="'.$this->conf['url'].$this->conf['logo'].'"  height="110"  />
+				<td WIDTH="45%" align="center">  <img  src="'.$this->conf['url'].'Logo_tsmgroup_b4holding_logo_fondo_blanco_Final_conMapaMza.png"  height="110"  />
 
 					<br><small>'.$this->conf['empresa']. ' - '.$this->conf['direccion'].  ' - '.$this->conf['ciudad']
 					. ' - Tel:'.$this->conf['tel']
