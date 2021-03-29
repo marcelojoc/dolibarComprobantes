@@ -42,7 +42,9 @@ class genComprobantePdf
 		
 		$valorComprobante= $comprobante->setIdComprobante($comp);
 		
-		// $comprobante->dataFactura();
+		
+
+		//var_dump($comprobante->getPaiement());
 
 		if($valorComprobante['response']){
 						// set certificate file 
@@ -81,7 +83,7 @@ class genComprobantePdf
 				<table cellspacing="0" cellpadding="5" border="0">
 				
 				<tr>
-				<td WIDTH="45%" align="center">  <img  src="'.$this->conf['url'].'Logo_tsmgroup_b4holding_logo_fondo_blanco_Final_conMapaMza.png"  height="110"  />
+				<td WIDTH="45%" align="center">  <img  src="'.$this->conf['url'].'"  height="110"  />
 
 					<br><small>'.$this->conf['empresa']. ' - '.$this->conf['direccion'].  ' - '.$this->conf['ciudad']
 					. ' - Tel:'.$this->conf['tel']
@@ -101,15 +103,23 @@ class genComprobantePdf
 				$this->pdf->writeHTML($tbl, true, false, true, false, '');
 
 				// separo el monto por que no lo escribe correctamente el modulo de dolibarr
+// echo('<pre>');
+// var_dump($comprobante->divisa);
 
-
+// echo('</pre>');
 				$entero= strval($comprobante->monto);
 				$porciones = explode(".", $entero);
 				// var_dump($porciones[0]);
 				// var_dump($porciones[1]);
-				// var_dump($comprobante->monto);
-				
-				$textoMonto= 'PESOS ';
+				//var_dump($comprobante->facturas[0]['divisa']);
+				if($comprobante->facturas[0]['divisa'] == 'USD'){
+					$textoMonto= 'Dolares ';
+					$simboloPeso= "USD ";
+				}else{
+					$textoMonto= 'Pesos ';
+					$simboloPeso= "$ ";
+				}
+				// $textoMonto= 'Pesos ';
 				$textoMonto.= strtoupper($this->langs->getLabelFromNumber($porciones[0] ,0|0));
 				$textoMonto.= ' CON ';
 				$textoMonto.= strtoupper($this->langs->getLabelFromNumber($porciones[1] ,0|0));
@@ -156,17 +166,25 @@ class genComprobantePdf
 			$totalesDeFacturas= 0;
 
 			foreach($comprobante->facturas as $facturas){
-
+				//var_dump($comprobante->facturas[0]['divisa']);
+				if($facturas['divisa'] == 'USD'){
+					
+					$simboloPeso= "USD ";
+				}else{
+					
+					$simboloPeso= "$ ";
+				}
+				
 				$tblDatos .='
 				
 				<tr>
 					<td>'.$facturas['referenciaFactura'].' '.$datoAfip.'</td>
 					<td>'.$facturas['fechaFactura'].'</td>
-					<td> $'.$facturas['total'].'</td>
+					<td> '.$simboloPeso.$facturas['total'].'</td>
 					<td>'.$comprobante->medioDePago.' '.$comprobante->numeroDePago.'</td>
 					<td>'.$comprobante->banco.'</td>
 					<td>'.$comprobante->nota.'</td>
-					<td> $'.$facturas['importe'].'</td>
+					<td> '.$simboloPeso .$facturas['importe'].'</td>
 				</tr>';
 
 
@@ -180,8 +198,8 @@ class genComprobantePdf
 
  
 			$htmlTotal = '
-			<H3 align="right"> Total : $ '.$comprobante->monto.' </H3>
-			<H3 align="right" color="red"> Pendiente :  $'.(intval(	$totalesDeFacturas - $comprobante->montoTotalPagado)).'</H3>
+			<H3 align="right"> Total :'.$simboloPeso.$comprobante->monto.' </H3>
+			<H3 align="right" color="red"> Pendiente :  '.$simboloPeso.(intval(	$totalesDeFacturas - $comprobante->montoTotalPagado)).'</H3>
 			<hr>';
 
 

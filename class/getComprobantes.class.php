@@ -44,6 +44,8 @@ class getComprobantes // extends CommonObject
     public $numeroDePago;  // numero del cheque
     public $banco;  // si es cheque o efectivo
     public $referenciaComprobante;  // refrerencia del comprobante PAY1807-14074
+    public $divisa;  // refrerencia del comprobante PAY1807-14074
+
 
 
     //public $objAfip= false;  // objeto con todo los datos de la factura Electronica
@@ -199,6 +201,7 @@ class getComprobantes // extends CommonObject
             'fechaVencimiento'=> date('d/m/Y', $factura->date_lim_reglement) ,
             'fechaFactura'=>     date('d/m/Y', $factura->date_creation),
             'total'=>            floatval($factura->total_ttc),
+            'divisa'=>            $factura->multicurrency_code,
             'importe'=>          $this->getPaiementMade($idFactura),
             'pagada'=>           $factura->paye,
             'afip'=>           $this->getAfip($idFactura),
@@ -270,6 +273,41 @@ class getComprobantes // extends CommonObject
     }
 
 
+    /**
+     * Este metodo trae la divisa de la factura que se  esta pagando
+     */
+    public function getDivisaFactura ($idFactura){
+
+        $sql = "SELECT";
+        $sql.= " multicurrency_code ";
+        $sql.= " FROM " . MAIN_DB_PREFIX . "facture ";
+        $sql.= " WHERE rowid = " . $idFactura ;
+  
+        $resql = $this->db->query($sql);
+   
+        if ($resql->num_rows > 0) {
+
+            while ($obj = $this->db->fetch_object($resql)) {
+               
+                $divisa = $obj->multicurrency_code;
+            }
+            
+            $this->db->free($resql);
+
+            return $divisa;
+
+        } else {
+            $this->error = "Error " . $this->db->lasterror();
+            dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
+
+            return false;
+        }
+
+
+
+
+
+    }
 
     // este metodo  recibe el numero  de comprobante  y el numero  de factura  y te devuelve  el monto  abonado
     // el monto que pone manualmente  en el cuadro  de texto  para  genera  un pago
@@ -385,6 +423,7 @@ class getComprobantes // extends CommonObject
                 
             }
 
+            $this->divisa= $this->getDivisaFactura(); ;
             switch ($medio) {
                 case '4':
                     $this->medioDePago ='EFECTIVO';
@@ -495,7 +534,7 @@ class getComprobantes // extends CommonObject
             $this->error = "Error " . $this->db->lasterror();
             dol_syslog(get_class($this) . "::fetch " . $this->error, LOG_ERR);
 
-            return false;
+            return $sql;
         }
 
 
@@ -509,17 +548,17 @@ class getComprobantes // extends CommonObject
 
     public function sustitution($text, $data){
 
-        // var_dump($text);
-        // var_dump($data);
+        //var_dump($text);
         
         $substitutionarray=array(
-
+            
             '__THIRDPARTY_NAME__' => $data->nombreCliente ,
-            '__REF__' => $data->referenciaFactura,	// Done into actions_sendmails
+            '__REF__' => ($data->referenciaFactura == NULL ? "": $data->referenciaFactura),	// Done into actions_sendmails
             '__USER_SIGNATURE__' => (($user->signature && empty($conf->global->MAIN_MAIL_DO_NOT_USE_SIGN))?$usersignature:''),	
-
+            
         );
-
+        
+        
         foreach($substitutionarray as $key =>$item){
 
            // echo($key. 'y '.$item);
@@ -527,6 +566,7 @@ class getComprobantes // extends CommonObject
 
         }
 
+       
         return $text;
 
     }

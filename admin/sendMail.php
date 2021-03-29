@@ -45,7 +45,6 @@ $idSelect=GETPOST('modelmailselected','alpha');
 // accessforbidden();
 
 
-
 if($user->admin == 0){
 
 		if(is_null($user->rights->Comprobantes->comprobante) ){
@@ -86,11 +85,15 @@ if($user->admin == 0){
 		if($valorComprobante['response'] ){    //  si el resultado de setear el comprobante es favorable puedo desplegar el formulario
 
 			$template = $comprobante->getTemplateMail($idSelect);
-		
+
+			
 			$html=$template[0]->content;
 			$asunto=$template[0]->topic;
-			
 
+
+			
+			
+			//var_dump($comprobante->sustitution($html,$comprobante ));
 			
 			$comprobante->dataFactura(); // busco todos los datos del comprobante;
 			
@@ -108,12 +111,12 @@ if($user->admin == 0){
 			$wikihelp='EN:Setup_EMails|ES:Formulario envio de comprobantes';
 			llxHeader('','Formulario envio de comprobantes',$wikihelp);
 			$head = email_admin_prepare_head();
-
 			print load_fiche_titre('Formulario de envio de comprobantes','','');
 
 			// Cree l'objet formulaire mail
 			include_once DOL_DOCUMENT_ROOT.'/core/class/html.formmail.class.php';
 			$formmail = new FormMail($db);
+			$formmail->lines_model = array();
 			$formmail->trackid= $trackid;
 			$formmail->fromname = (isset($_POST['fromname'])?$_POST['fromname']:$conf->global->MAIN_MAIL_EMAIL_FROM);
 			$formmail->frommail = (isset($_POST['frommail'])?$_POST['frommail']:$conf->global->MAIN_MAIL_EMAIL_FROM);
@@ -133,7 +136,7 @@ if($user->admin == 0){
 			$formmail->withfile=2;
 			// este esw el cuerpo del mensaje
 
-			$formmail->withbody=$comprobante->sustitution($html,$comprobante );
+			$formmail->withbody= $comprobante->sustitution($html,$comprobante );
 
 			$formmail->withbodyreadonly=0;
 			$formmail->withcancel=1;
@@ -143,19 +146,30 @@ if($user->admin == 0){
 			// Tableau des parametres complementaires du post
 			$formmail->param["action"]="send";
 			$formmail->param["models"]="body";
+			$formmail->param["models_id"]=$idSelect;
+
 			$formmail->param["mailid"]=0;
 			$formmail->param["returnurl"]=$_SERVER["PHP_SELF"].'?comp='. $comp;
 			$file= DOL_DATA_ROOT.'/comprobantes/'.$comprobante->referenciaComprobante.'/'.$comprobante->referenciaComprobante.'.pdf';
 			$formmail->param['fileinit'] = array($file);		
 			$formmail->param['id'] = $comp;
 			
-			$formmail->clear_attached_files();
+			//$formmail->clear_attached_files();
 
 			$formmail->add_attached_files($file, basename($file), 'application/pdf');
 			print $formmail->get_form();
 
+
+			echo('<pre>');
+			//var_dump($formmail->get_form() );
+			echo('</pre>');
+
+
+			//=============================
 			
 			dol_fiche_end();
+
+			
 
 
 		}else{

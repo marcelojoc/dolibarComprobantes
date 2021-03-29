@@ -39,7 +39,7 @@ $config = array(
     'logo'=>$conf->global->MAIN_INFO_SOCIETE_LOGO,
     'iibb'=>$conf->global->MAIN_INFO_SIRET,
     'cuit'=>$conf->global->MAIN_INFO_SIREN,
-    'url'=>$protocol .$domain. $urlSinParams.'img/',
+    'url'=> $protocol .$domain. $urlSinParams.'img/Logo_tsmgroup_b4holding_logo_fondo_blanco_Final_conMapaMza.png',
     'download'=>'D',
 
 

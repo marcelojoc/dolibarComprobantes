@@ -65,12 +65,13 @@ include_once ( '../class/genComprobantePdf.class.php');
  $test = new getComprobantes($db );
 
 
-$valor = $test->setIdComprobante(854);
-$aa= $test->getTotalPaiement();
+$valor = $test->getTemplateMail(1);
+//$aa= $test->getTotalPaiement();
 
 echo('<pre>');
-var_dump($test);
- var_dump($aa);
+var_dump($valor);
+
+
 echo('</pre>');
 
 
@@ -78,7 +79,7 @@ echo('</pre>');
 ?>
 
 
-<?php phpinfo() ?>
+
 
 
 <!-- <!DOCTYPE html>
