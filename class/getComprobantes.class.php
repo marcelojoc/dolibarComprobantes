@@ -188,26 +188,28 @@ class getComprobantes // extends CommonObject
 
         $factura = new facture($this->db); // instancio la clase factura
         $factura->fetch($idFactura); // cargo los datos  para el id de la factura asociada
-        
-
+    
         $this->idCliente = $factura->socid; // aqui seteo el cliente para despues escribir los datos
 
-        $this->montoTotalPagado += $this->getTotalAmount($idFactura); // traigo el total abonado
+        $this->montoTotalPagado += $this->getTotalAmount($idFactura, $factura->multicurrency_code); // traigo el total abonado
 
+                // echo('<pre>');
+                // var_dump($factura);
+                // echo('</pre>');
+                // exit;
 
         $valorFactura = [
 
             'referenciaFactura'=> $factura->ref,
             'fechaVencimiento'=> date('d/m/Y', $factura->date_lim_reglement) ,
             'fechaFactura'=>     date('d/m/Y', $factura->date_creation),
-            'total'=>            floatval($factura->total_ttc),
+            'total'=>             $factura->multicurrency_code == 'USD' ? floatval($factura->multicurrency_total_ttc) : floatval($factura->total_ttc)  ,
             'divisa'=>            $factura->multicurrency_code,
-            'importe'=>          $this->getPaiementMade($idFactura),
+            'importe'=>          $this->getPaiementMade($idFactura, null , $factura->multicurrency_code),
             'pagada'=>           $factura->paye,
             'afip'=>           $this->getAfip($idFactura),
         ];
         
-
         return $valorFactura;
 
     }
@@ -238,7 +240,7 @@ class getComprobantes // extends CommonObject
      * y los trae como un solo monto...  
      * esto se aplica para pagos parciales de facturas o usando diferentes medios de pago
      */
-    public function getTotalAmount ( $idFactura){
+    public function getTotalAmount ( $idFactura, $divisa){
 
         $total=0;
 
@@ -255,8 +257,15 @@ class getComprobantes // extends CommonObject
         if ($resql->num_rows > 0) {
 
             while ($obj = $this->db->fetch_object($resql)) {
-               
-                $total+= floatval($obj->amount);
+
+               if($divisa == 'USD'){
+
+                    $total+= floatval($obj->multicurrency_amount);
+               }else{
+                    $total+= floatval($obj->amount);
+
+               }
+                
             }
             
             $this->db->free($resql);
@@ -314,13 +323,14 @@ class getComprobantes // extends CommonObject
     //$idFactura   es el id  de la factura asociada
     // $idPaiement  o $this->comprobante  es el id  del pago  realizado  
 
-    public function getPaiementMade($idFactura , $idPaiement = null){
+    public function getPaiementMade($idFactura , $idPaiement = null, $divisa){
 
             // $this->comprobante
             if(is_null($idPaiement)){
 
                 $idPaiement = $this->comprobante;
             }
+
             $total=0;
             $sql = "SELECT";
             $sql.= " *";
@@ -335,7 +345,14 @@ class getComprobantes // extends CommonObject
 
                 while ($obj = $this->db->fetch_object($resql)) {
                 
-                    $total = floatval($obj->amount);
+                    if($divisa == 'USD'){
+
+                        $total = floatval($obj->multicurrency_amount);
+
+                    }else{
+
+                        $total = floatval($obj->amount);
+                    }
                 }
                 
                 $this->db->free($resql);
@@ -396,7 +413,7 @@ class getComprobantes // extends CommonObject
 
         // SELECT * FROM llx_paiement AS p , llx_bank AS b WHERE  p.fk_bank = b.rowid AND  p.rowid = 14083
         $sql = "SELECT";
-        $sql.= " p.rowid,p.ref, DATE_FORMAT(p.datep, '%d/%m/%Y') AS datep , p.amount, p.fk_paiement, p.note, p.num_paiement , ";
+        $sql.= " p.rowid,p.ref, DATE_FORMAT(p.datep, '%d/%m/%Y') AS datep , p.amount, p.fk_paiement, p.note, p.num_paiement ,p.multicurrency_amount ,  ";
         $sql.= " b.banque ";
         $sql.= " FROM " . MAIN_DB_PREFIX . "paiement as p ,";
         $sql.=   MAIN_DB_PREFIX . "bank as b ";
@@ -413,7 +430,7 @@ class getComprobantes // extends CommonObject
             if ($this->db->num_rows($resql)) {
                 $obj = $this->db->fetch_object($resql);
 
-                $this->monto= floatval($obj->amount);
+                $this->monto= floatval($obj->multicurrency_amount);   //MODIFICAR  AQUIIIII
                 $medio = $obj->fk_paiement;
                 $this->numeroDePago = $obj->num_paiement;
                 $this->banco = $obj->banque;

@@ -104,16 +104,18 @@ class genComprobantePdf
 
 				// separo el monto por que no lo escribe correctamente el modulo de dolibarr
 // echo('<pre>');
-// var_dump($comprobante->divisa);
+// var_dump($comprobante);
 
-// echo('</pre>');
+// echo('</pre>');6724
+
+// exit;
 				$entero= strval($comprobante->monto);
 				$porciones = explode(".", $entero);
 				// var_dump($porciones[0]);
 				// var_dump($porciones[1]);
 				//var_dump($comprobante->facturas[0]['divisa']);
 				if($comprobante->facturas[0]['divisa'] == 'USD'){
-					$textoMonto= 'Dolares ';
+					$textoMonto= 'Dolares Americanos ';
 					$simboloPeso= "USD ";
 				}else{
 					$textoMonto= 'Pesos ';
