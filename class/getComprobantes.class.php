@@ -70,15 +70,15 @@ class getComprobantes // extends CommonObject
      * Este metodo me setea el numero de comprobante al cual estoy ingresando
      */
     public function setIdComprobante($idComp= null){
-
+        
         if(!is_null($idComp)){ // si envian algo hay que ver que sea un numero
 
             $comprobante = intval($idComp);
-
+            
             if($comprobante > 0){  // si es un numero realiza el proceso de seteo
 
                 $this->comprobante = $comprobante; // seteo el numero de id comprobante
-
+               
                 $checkFacturas= $this->getIdFactura();  // aqui veo cuales son las facturas que existen para el pago seleccionado
 
                 if($checkFacturas['result']){
@@ -90,12 +90,12 @@ class getComprobantes // extends CommonObject
                         array_push($this->facturas , $this->dataFactura($factura->fk_facture) );
 
                     }
-
+                    
                     $this->getPaiement();   // asigno los datos del PAGO
+                    
                     $this->getClient();  // asigno los datos del cliente
                     // echo('<pre>');
                     // var_dump($this->facturas);
-                    
                     // echo('</pre>');
 
                     $resultado=['response'=>true, 'msg'=>'Valor comprobante seteado correctamente'];
@@ -200,6 +200,8 @@ class getComprobantes // extends CommonObject
 
         $valorFactura = [
 
+            'idFactura'=> $idFactura,
+            'abono'=> $this->getAbonoFactura($idFactura),
             'referenciaFactura'=> $factura->ref,
             'fechaVencimiento'=> date('d/m/Y', $factura->date_lim_reglement) ,
             'fechaFactura'=>     date('d/m/Y', $factura->date_creation),
@@ -215,7 +217,33 @@ class getComprobantes // extends CommonObject
     }
 
 
+    /**
+     * Este metodo  busca  el abono generado referido a una factura asignada  
+     * busca el campo fk_facture_source referido a un id de factura
+     */
 
+    public function getAbonoFactura($idFactura){
+
+        $sql = "SELECT";
+        $sql.= " *";
+        $sql.= " FROM " . MAIN_DB_PREFIX . "facture as f";
+        $sql.= " WHERE f.fk_facture_source = '" . $idFactura ."'";
+
+        $data= $this->queryGen($sql);
+        
+        if( is_null($data)){
+            return array('result'=> false, 'data'=> 'no se encuentran valores ');
+        }else{
+            
+            if($data[0]>multicurrency_code == 'ARS'){
+
+                return array('result'=> true, 'data'=> $data[0]->total_ttc);
+            }else{
+
+                return array('result'=> true, 'data'=> $data[0]->multicurrency_total_ttc);
+            }
+        }
+    }
 
 
     /**
@@ -420,7 +448,7 @@ class getComprobantes // extends CommonObject
         $sql.= " WHERE p.fk_bank = b.rowid ";
         $sql.= " AND p.rowid = " . $this->comprobante;
         
-
+        
         dol_syslog(get_class($this) . "::fetch sql=" . $sql, LOG_DEBUG);
         $resql = $this->db->query($sql);
    
@@ -429,18 +457,20 @@ class getComprobantes // extends CommonObject
 
             if ($this->db->num_rows($resql)) {
                 $obj = $this->db->fetch_object($resql);
-
                 $this->monto= floatval($obj->multicurrency_amount);   //MODIFICAR  AQUIIIII
+
                 $medio = $obj->fk_paiement;
                 $this->numeroDePago = $obj->num_paiement;
                 $this->banco = $obj->banque;
                 $this->referenciaComprobante = $obj->ref;
                 $this->fecha=  $obj->datep;
                 $this->nota= $obj->note;
-                
-            }
 
-            $this->divisa= $this->getDivisaFactura(); ;
+            }
+            
+            //$this->divisa= $this->getDivisaFactura(8067); 
+            
+            //var_dump($this->facturas[0]); exit;
             switch ($medio) {
                 case '4':
                     $this->medioDePago ='EFECTIVO';
@@ -615,8 +645,7 @@ class getComprobantes // extends CommonObject
                                 $obj = $this->db->fetch_object($resp);
                                 if ($obj)
                                 {
-                                        // You can use here results
-                                        
+
                                         array_push($respuesta, $obj);
                                 }
                                 $i++;

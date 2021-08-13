@@ -35,16 +35,12 @@ class genComprobantePdf
     public function dibujar($comp){
 
 		
-		// var_dump(DOL_DOCUMENT_ROOT);
 
 		// exit;
 		$comprobante = new getComprobantes($this->db);
-		
 		$valorComprobante= $comprobante->setIdComprobante($comp);
 		
-		
 
-		//var_dump($comprobante->getPaiement());
 
 		if($valorComprobante['response']){
 						// set certificate file 
@@ -55,9 +51,7 @@ class genComprobantePdf
 				// echo('<img  src="dolibar12/documents/mycompany/logos/v-logo-business-logo-and-symbols-template-vector.jpg
 				// " />');
 
-				
-
-
+			
 				// set additional information 
 				$info = array(
 					'Name' => 'TCPDF', 
@@ -103,12 +97,12 @@ class genComprobantePdf
 				$this->pdf->writeHTML($tbl, true, false, true, false, '');
 
 				// separo el monto por que no lo escribe correctamente el modulo de dolibarr
-// echo('<pre>');
-// var_dump($comprobante);
+				// echo('<pre>');
+				// var_dump($comprobante);
 
-// echo('</pre>');6724
+				// echo('</pre>');
 
-// exit;
+				// exit;
 				$entero= strval($comprobante->monto);
 				$porciones = explode(".", $entero);
 				// var_dump($porciones[0]);
@@ -189,8 +183,18 @@ class genComprobantePdf
 					<td> '.$simboloPeso .$facturas['importe'].'</td>
 				</tr>';
 
+				
+				if($facturas['abono']['result']){
+					
+					$abono = intval($facturas['abono']['data']);
 
-				$totalesDeFacturas +=  intval($facturas['total']);
+				}else{
+					$abono = 0;
+				}
+				
+				$totalesDeFacturas +=  intval($facturas['total']) + ($abono);
+
+				
 			}
 
 	

@@ -17,7 +17,6 @@ if($user->admin == 0){
 
 $comprobante = (GETPOST('comp', 'int') ? GETPOST('comp', 'int') : GETPOST('comp', 'int')); // For backward compatibility
 
-//var_dump($comprobante);
 
 $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
 
@@ -44,6 +43,8 @@ $config = array(
 
 
 );
+
+
 
  $test = new genComprobantePdf($db,$langs, $config  );
 
